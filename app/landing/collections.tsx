@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 
@@ -8,22 +8,63 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 
 import PillTabs from "./pill-tabs ";
 
+type Category = {
+  id: string;
+  label: string;
+  value: string;
+};
+
 export default function Collections() {
   const router = useRouter();
-  
-  const categories = [
-    "Action Packed",
-    "Featured Universes",
-    "Korean Wave",
-    "Editor’s Choice",
-    "Feel Good",
-    "Trending Now",
-  ].map((item) => ({
-    label: item,
-    value: item.toLowerCase(),
-  }));
 
-  const [categoryActive, setCategoryActive] = useState("featured universes");
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  const fetchCategories = async () => {
+    try {
+      setLoading(true);
+
+      const response = await fetch("/api/landing/collections/collection-categories");
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message);
+      }
+
+      const formattedCategories = data.map(
+        (item: {
+          id: string;
+          name: string;
+          slug: string;
+        }) => ({
+          id: item.id,
+          label: item.name,
+          value: item.slug,
+        })
+      );
+
+      setCategories(formattedCategories);
+
+      if (formattedCategories.length > 0) {
+        setCategoryActive(formattedCategories[0].value);
+      }
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error(error.message);
+      } else {
+        console.error("Something went wrong");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const [categoryActive, setCategoryActive] = useState("");
 
   const cards = [
     {
@@ -96,13 +137,25 @@ export default function Collections() {
         </h2>
 
         {/* Filters */}
-        <PillTabs
-          items={categories}
-          value={categoryActive}
-          onChange={setCategoryActive}
-          size="lg"
-          id="collections"
-        />
+        {loading ? (
+          <div className="flex gap-3 mt-4 overflow-hidden">
+            {[...Array(5)].map((_, i) => (
+              <div
+                key={i}
+                className="h-11 w-36 rounded-full bg-gray-200 animate-pulse"
+              />
+            ))}
+          </div>
+        ) : (
+
+          <PillTabs
+            items={categories}
+            value={categoryActive}
+            onChange={setCategoryActive}
+            size="lg"
+            id="collections"
+          />
+        )}
 
         {/* Cards Grid */}
         <div
@@ -156,7 +209,7 @@ export default function Collections() {
                   {card.title}
                 </span>
 
-                <button 
+                <button
                   onClick={() =>
                     router.push(`/collections?category=${encodeURIComponent(card.title)}`)
                   }

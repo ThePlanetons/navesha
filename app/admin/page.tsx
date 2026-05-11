@@ -13,11 +13,15 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar"
+import AddCategoryForm from "./collections/collection-categories/page"
+import AddPopularCollectionPage from "./collections/popular-collections/page"
+import AddCollectionImagePage from "./collections/collection-images/page"
 
 export default function Page() {
   return (
     <SidebarProvider>
       <AppSidebar />
+
       <SidebarInset>
         <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
           <div className="flex items-center gap-2 px-4">
@@ -26,6 +30,7 @@ export default function Page() {
               orientation="vertical"
               className="mr-2 data-[orientation=vertical]:h-4"
             />
+
             <Breadcrumb>
               <BreadcrumbList>
                 <BreadcrumbItem className="hidden md:block">
@@ -33,7 +38,9 @@ export default function Page() {
                     Build Your Application
                   </BreadcrumbLink>
                 </BreadcrumbItem>
+
                 <BreadcrumbSeparator className="hidden md:block" />
+
                 <BreadcrumbItem>
                   <BreadcrumbPage>Data Fetching</BreadcrumbPage>
                 </BreadcrumbItem>
@@ -41,14 +48,22 @@ export default function Page() {
             </Breadcrumb>
           </div>
         </header>
-        <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
+        
+        <AddCollectionImagePage></AddCollectionImagePage>
+
+        <AddPopularCollectionPage></AddPopularCollectionPage>
+
+        <AddCategoryForm></AddCategoryForm>
+
+        {/* <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
           <div className="grid auto-rows-min gap-4 md:grid-cols-3">
             <div className="aspect-video rounded-xl bg-muted/50" />
             <div className="aspect-video rounded-xl bg-muted/50" />
             <div className="aspect-video rounded-xl bg-muted/50" />
           </div>
+
           <div className="min-h-[100vh] flex-1 rounded-xl bg-muted/50 md:min-h-min" />
-        </div>
+        </div> */}
       </SidebarInset>
     </SidebarProvider>
   )
