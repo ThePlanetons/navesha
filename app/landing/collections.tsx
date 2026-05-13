@@ -20,6 +20,18 @@ export default function Collections() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // const categories = [
+  //   "Action Packed",
+  //   "Featured Universes",
+  //   "Korean Wave",
+  //   "Editor’s Choice",
+  //   "Feel Good",
+  //   "Trending Now",
+  // ].map((item) => ({
+  //   label: item,
+  //   value: item.toLowerCase(),
+  // }));
+
   useEffect(() => {
     fetchCategories();
   }, []);

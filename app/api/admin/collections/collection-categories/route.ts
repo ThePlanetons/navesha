@@ -13,7 +13,6 @@ const supabase = createClient(
   serviceRoleKey
 );
 
-
 export async function GET() {
   const { data, error } = await supabase
     .from("collection_categories")

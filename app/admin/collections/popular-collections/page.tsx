@@ -2,264 +2,264 @@
 
 import { useEffect, useState } from "react";
 
+import { FolderKanban, Pencil, Trash2, Plus, ImageIcon, } from "lucide-react";
+
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, } from "@/components/ui/dialog";
+import { Separator } from "@/components/ui/separator";
+import { Skeleton } from "@/components/ui/skeleton";
 
-import { Input } from "@/components/ui/input";
+import AddCollectionCategoryForm from "../collection-categories/add-collection-category-form";
+import PopularCollectionForm, { PopularCollection } from "./popular-collection-form";
 
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+export default function PopularCollections() {
+  const [collections, setCollections] = useState<PopularCollection[]>([]);
 
-import { Textarea } from "@/components/ui/textarea";
-
-import { Switch } from "@/components/ui/switch";
-
-import { Label } from "@/components/ui/label";
-
-type Category = {
-  id: string;
-  name: string;
-};
-
-export default function AddPopularCollectionPage() {
-  const [categories, setCategories] = useState<Category[]>([]);
-
-  const [loading, setLoading] = useState(false);
-
-  const [formData, setFormData] = useState({
-    category_id: "",
-    title: "",
-    slug: "",
-    description: "",
-    sort_order: 0,
-    is_active: true,
-  });
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchCategories();
+    fetchCollections();
   }, []);
 
-  const fetchCategories = async () => {
-    try {
-      const response = await fetch("/api/admin/collections/collection-categories");
-
-      const data = await response.json();
-
-      setCategories(data || []);
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const generateSlug = (value: string) => {
-    return value
-      .toLowerCase()
-      .trim()
-      .replace(/[^a-z0-9\s-]/g, "")
-      .replace(/\s+/g, "-");
-  };
-
-  const handleTitleChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const title = e.target.value;
-
-    setFormData((prev) => ({
-      ...prev,
-      title,
-      slug: generateSlug(title),
-    }));
-  };
-
-  const handleSubmit = async (
-    e: React.FormEvent<HTMLFormElement>
-  ) => {
-    e.preventDefault();
-
+  const fetchCollections = async () => {
     try {
       setLoading(true);
 
       const response = await fetch(
-        "/api/admin/collections/popular-collections",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(formData),
-        }
+        "/api/admin/collections/popular-collections"
       );
 
       const data = await response.json();
 
-      if (!response.ok) {
-        throw new Error(data.error);
-      }
-
-      alert("Popular collection added");
-
-      setFormData({
-        category_id: "",
-        title: "",
-        slug: "",
-        description: "",
-        sort_order: 0,
-        is_active: true,
-      });
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        console.error(error.message);
-      } else {
-        console.error("Something went wrong");
-      }
+      setCollections(data || []);
+    } catch (error) {
+      console.error(error);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="max-w-2xl mx-auto p-6">
-      <Card className="rounded-2xl">
-        <CardHeader>
-          <CardTitle className="text-2xl">
-            Add Popular Collection
-          </CardTitle>
-        </CardHeader>
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold">
+            Popular Collections
+          </h1>
 
-        <CardContent>
-          <form
-            onSubmit={handleSubmit}
-            className="space-y-6"
-          >
-            <div className="w-full space-y-2">
-              <Label>Category</Label>
+          <p className="text-muted-foreground mt-1">
+            Manage your storefront collections
+          </p>
+        </div>
 
-              <Select
-                value={formData.category_id}
-                onValueChange={(value) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    category_id: value,
-                  }))
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select category" />
-                </SelectTrigger>
+        <div className="flex items-center gap-3">
+          {/* Add Category */}
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button className="rounded-xl">
+                <Plus className="h-4 w-4" />
+                Add Category
+              </Button>
+            </DialogTrigger>
 
-                <SelectContent>
-                  {categories.map((category) => (
-                    <SelectItem
-                      key={category.id}
-                      value={category.id}
-                    >
-                      {category.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+            <DialogContent className="flex max-h-[90vh] flex-col overflow-hidden p-0 sm:max-w-lg gap-0 [&>button]:top-3 [&>button]:right-4">
+              <DialogHeader className="shrink-0 px-4 py-3 text-left">
+                <DialogTitle className="text-xl">
+                  Create Category
+                </DialogTitle>
+              </DialogHeader>
+
+              <Separator />
+
+              <div className="flex-1 overflow-y-auto p-4">
+                <AddCollectionCategoryForm />
+              </div>
+            </DialogContent>
+          </Dialog>
+
+          {/* Add Collection */}
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button className="rounded-xl">
+                <Plus className="h-4 w-4" />
+                Add Collection
+              </Button>
+            </DialogTrigger>
+
+            <DialogContent className="flex max-h-[90vh] flex-col overflow-hidden p-0 sm:max-w-lg gap-0 [&>button]:top-3 [&>button]:right-4">
+              <DialogHeader className="shrink-0 px-4 py-3 text-left">
+                <DialogTitle className="text-xl">
+                  Create Collection
+                </DialogTitle>
+              </DialogHeader>
+
+              <Separator />
+
+              <div className="flex-1 overflow-y-auto p-4">
+                <PopularCollectionForm />
+              </div>
+            </DialogContent>
+          </Dialog>
+        </div>
+      </div>
+
+      {/* Empty State */}
+      {!loading && collections.length === 0 && (
+        <Card className="rounded-3xl border-dashed">
+          <CardContent className="flex flex-col items-center justify-center py-20 text-center">
+            <div className="mb-4 rounded-2xl bg-muted p-4">
+              <FolderKanban className="h-10 w-10 text-muted-foreground" />
             </div>
 
-            <div className="space-y-2">
-              <Label>Title</Label>
+            <h2 className="text-xl font-semibold">
+              No collections found
+            </h2>
 
-              <Input
-                placeholder="Enter title"
-                value={formData.title}
-                onChange={handleTitleChange}
-                required
-              />
-            </div>
+            <p className="mt-2 max-w-md text-sm text-muted-foreground">
+              Create your first popular collection to
+              organize products and showcase categories.
+            </p>
 
-            <div className="space-y-2">
-              <Label>Slug</Label>
+            <Button className="mt-6 rounded-xl">
+              Create Collection
+            </Button>
+          </CardContent>
+        </Card>
+      )}
 
-              <Input
-                placeholder="slug"
-                value={formData.slug}
-                onChange={(e) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    slug: e.target.value,
-                  }))
-                }
-                required
-              />
-            </div>
+      {/* Loading */}
+      {loading && (
+        <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+          {Array.from({ length: 6 }).map((_, index) => (
+            <Card
+              key={index}
+              className="rounded-3xl py-0"
+            >
+              <CardContent className="space-y-3 p-5">
+                <Skeleton className="h-40 w-full rounded-2xl" />
 
-            <div className="space-y-2">
-              <Label>Description</Label>
+                <Skeleton className="h-6 w-40" />
 
-              <Textarea
-                placeholder="Enter description"
-                rows={5}
-                value={formData.description}
-                onChange={(e) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    description: e.target.value,
-                  }))
-                }
-              />
-            </div>
+                <Skeleton className="h-4 w-full" />
 
-            <div className="space-y-2">
-              <Label>Sort Order</Label>
+                <Skeleton className="h-4 w-24" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
 
-              <Input
-                type="number"
-                value={formData.sort_order}
-                onChange={(e) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    sort_order: Number(e.target.value),
-                  }))
-                }
-              />
-            </div>
+      {/* Collections Grid */}
+      {!loading && collections.length > 0 && (
+        <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+          {collections.map((collection) => (
+            <Card
+              key={collection.id}
+              className="group overflow-hidden rounded-3xl border transition-all hover:-translate-y-1 hover:shadow-lg py-0 gap-0"
+            >
+              {/* Banner */}
+              <div className="relative h-24 overflow-hidden bg-gradient-to-br from-muted to-muted/40">
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <FolderKanban className="h-14 w-14 text-muted-foreground/40" />
+                </div>
 
-            <div className="flex items-center justify-between border rounded-xl p-4">
-              <div>
-                <Label>Active Status</Label>
-
-                <p className="text-sm text-muted-foreground">
-                  Enable or disable this collection
-                </p>
+                <div className="absolute left-5 top-5">
+                  <Badge
+                    variant={
+                      collection.is_active
+                        ? "default"
+                        : "secondary"
+                    }
+                    className="rounded-full"
+                  >
+                    {collection.is_active
+                      ? "Active"
+                      : "Inactive"}
+                  </Badge>
+                </div>
               </div>
 
-              <Switch
-                checked={formData.is_active}
-                onCheckedChange={(checked) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    is_active: checked,
-                  }))
-                }
-              />
-            </div>
+              <CardContent className="space-y-3 p-5">
+                {/* Content */}
+                <div>
+                  <h2 className="line-clamp-1 text-xl font-semibold">
+                    {collection.title}
+                  </h2>
 
-            <Button
-              type="submit"
-              className="w-full"
-              disabled={loading}
-            >
-              {loading
-                ? "Creating..."
-                : "Create Collection"}
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    /{collection.slug}
+                  </p>
+                </div>
+
+                {/* Description */}
+                <p className="line-clamp-2 text-sm text-muted-foreground">
+                  {collection.description ||
+                    "No description added"}
+                </p>
+
+                {/* Footer */}
+                <div className="flex items-center justify-between">
+                  <div className="text-xs text-muted-foreground">
+                    Sort:{" "}
+                    {collection.sort_order || 0}
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    {/* Edit Collection */}
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button size="icon" variant="outline" className="rounded-xl">
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                      </DialogTrigger>
+
+                      <DialogContent className="flex max-h-[90vh] flex-col overflow-hidden p-0 sm:max-w-lg gap-0 [&>button]:top-3 [&>button]:right-4">
+                        <DialogHeader className="shrink-0 px-4 py-3 text-left">
+                          <DialogTitle className="text-xl">
+                            Edit Collection
+                          </DialogTitle>
+                        </DialogHeader>
+
+                        <Separator />
+
+                        <div className="flex-1 overflow-y-auto p-4">
+                          <PopularCollectionForm
+                            initialData={collection}
+                            onSuccess={() => {
+                              fetchCollections();
+                            }}
+                          />
+                        </div>
+                      </DialogContent>
+                    </Dialog>
+
+                    {/* Manage Images */}
+                    <Button
+                      size="icon"
+                      variant="secondary"
+                      className="rounded-xl"
+                    >
+                      <ImageIcon className="h-4 w-4" />
+                    </Button>
+
+                    {/* Delete */}
+                    <Button
+                      size="icon"
+                      variant="destructive"
+                      className="rounded-xl"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
