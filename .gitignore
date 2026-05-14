@@ -40,3 +40,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# SQL query files
+lib/supabase/queries/*
+!lib/supabase/queries/.gitkeep

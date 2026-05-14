@@ -44,22 +44,69 @@ export async function updateSession(request: NextRequest) {
 
   // IMPORTANT: If you remove getClaims() and you use server-side rendering
   // with the Supabase client, your users may be randomly logged out.
-  const { data } = await supabase.auth.getClaims();
-  const user = data?.claims;
+  // const { data } = await supabase.auth.getClaims();
+  // const user = data?.claims;
+
+  const { data: { user }, } = await supabase.auth.getUser();
 
   const protectedRoutes = ["/admin", "/dashboard"];
 
   const pathname = request.nextUrl.pathname;
 
   const isProtectedRoute = protectedRoutes.some(
-    (route) =>
-      pathname === route || pathname.startsWith(`${route}/`)
+    (route) => pathname === route || pathname.startsWith(`${route}/`)
   );
 
   if (isProtectedRoute && !user) {
     const url = request.nextUrl.clone();
     url.pathname = "/auth/login";
     return NextResponse.redirect(url);
+  }
+
+  // -----------------------------
+  // Admin Protection
+  // -----------------------------
+
+  const isAdminRoute = pathname === "/admin" || pathname.startsWith("/admin/");
+
+  if (isAdminRoute && user) {
+    const { data: profile } =
+      await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", user.id)
+        .single();
+
+    if (!profile || profile.role !== "admin") {
+      const url = request.nextUrl.clone();
+
+      url.pathname = "/dashboard";
+
+      return NextResponse.redirect(url);
+    }
+  }
+
+  // -----------------------------
+  // Prevent Admin Accessing Customer Dashboard
+  // -----------------------------
+
+  const isDashboardRoute = pathname === "/dashboard" || pathname.startsWith("/dashboard/");
+
+  if (isDashboardRoute && user) {
+    const { data: profile } =
+      await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", user.id)
+        .single();
+
+    if (profile?.role === "admin") {
+      const url = request.nextUrl.clone();
+
+      url.pathname = "/admin";
+
+      return NextResponse.redirect(url);
+    }
   }
 
   // if (

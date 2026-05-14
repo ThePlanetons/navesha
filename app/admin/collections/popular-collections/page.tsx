@@ -13,6 +13,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 import AddCollectionCategoryForm from "../collection-categories/add-collection-category-form";
 import PopularCollectionForm, { PopularCollection } from "./popular-collection-form";
+import CollectionImagesManager from "../collection-images/collection-images-manager";
 
 export default function PopularCollections() {
   const [collections, setCollections] = useState<PopularCollection[]>([]);
@@ -237,13 +238,33 @@ export default function PopularCollections() {
                     </Dialog>
 
                     {/* Manage Images */}
-                    <Button
-                      size="icon"
-                      variant="secondary"
-                      className="rounded-xl"
-                    >
-                      <ImageIcon className="h-4 w-4" />
-                    </Button>
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button
+                          size="icon"
+                          variant="secondary"
+                          className="rounded-xl"
+                        >
+                          <ImageIcon className="h-4 w-4" />
+                        </Button>
+                      </DialogTrigger>
+
+                      <DialogContent className="flex max-h-[90vh] flex-col overflow-hidden p-0 xl:min-w-7xl gap-0 [&>button]:top-3 [&>button]:right-4">
+                        <DialogHeader className="shrink-0 px-4 py-3 text-left">
+                          <DialogTitle className="text-xl">
+                            Manage Collection Images
+                          </DialogTitle>
+                        </DialogHeader>
+
+                        <Separator />
+
+                        <div className="flex-1 overflow-y-auto p-4">
+                          <CollectionImagesManager
+                            collection={collection}
+                          />
+                        </div>
+                      </DialogContent>
+                    </Dialog>
 
                     {/* Delete */}
                     <Button
