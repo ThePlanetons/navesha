@@ -22,13 +22,8 @@ export async function PUT(
 
     const { data, error } =
       await supabase
-        .from(
-          "collection_images"
-        )
-        .update({
-          image_type:
-            body.image_type,
-        })
+        .from("collection_images")
+        .update({ image_type: body.image_type, })
         .eq("id", id)
         .select()
         .single();
@@ -63,16 +58,11 @@ export async function PUT(
   }
 }
 
-export async function DELETE(
-  request: NextRequest,
-  context: { params: Params }
-) {
+export async function DELETE(request: NextRequest, context: { params: Params }) {
   try {
-    const { id } =
-      await context.params;
+    const { id } = await context.params;
 
-    const supabase =
-      await createClient();
+    const supabase = await createClient();
 
     // -----------------------------------
     // Get image first
@@ -97,8 +87,7 @@ export async function DELETE(
     ) {
       return NextResponse.json(
         {
-          error:
-            "Image not found",
+          error: "Image not found",
         },
         {
           status: 404,
@@ -110,8 +99,7 @@ export async function DELETE(
     // Extract storage path
     // -----------------------------------
 
-    const imageUrl =
-      image.image_url;
+    const imageUrl = image.image_url;
 
     /**
      * Example:
@@ -141,8 +129,7 @@ export async function DELETE(
     if (storageError) {
       return NextResponse.json(
         {
-          error:
-            storageError.message,
+          error: storageError.message,
         },
         {
           status: 400,
@@ -166,8 +153,7 @@ export async function DELETE(
     if (deleteError) {
       return NextResponse.json(
         {
-          error:
-            deleteError.message,
+          error: deleteError.message,
         },
         {
           status: 400,
@@ -183,8 +169,7 @@ export async function DELETE(
 
     return NextResponse.json(
       {
-        error:
-          "Internal server error",
+        error: "Internal server error",
       },
       {
         status: 500,

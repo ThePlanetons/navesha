@@ -1,9 +1,19 @@
 "use client";
 
-import { useState } from "react";
+import {
+  useEffect,
+  useState,
+} from "react";
 import Image from "next/image";
 
 import PillTabs from "./pill-tabs ";
+
+type HeroSlide = {
+  id: string;
+  image_url: string;
+  sort_order: number;
+  is_active: boolean;
+};
 
 export default function HeroSection() {
   const heros = [
@@ -15,14 +25,49 @@ export default function HeroSection() {
 
   const [herosActive, setHerosActive] = useState("explore");
 
-  const images = [
-    "/images/one-piece-1.jpg",
-    "/images/grand-theft-auto-6-video-game.jpg",
-    "/images/tom-and-jerry.jpg",
-    "/images/wednesday-addams-jenna-ortega.jpg",
-    "/images/anime-boy-sleeping-outdoors.jpg",
-    "/images/cyberpunk-rider-in-the-neon-megacity.jpg",
-  ];
+  const [images, setImages] = useState<string[]>([]);
+
+  const [loading, setLoading] =
+    useState(true);
+
+  useEffect(() => {
+    fetchHeroSlides();
+  }, []);
+
+  const fetchHeroSlides =
+    async () => {
+      try {
+        const response =
+          await fetch(
+            "/api/landing/hero-slides"
+          );
+
+        const data = await response.json();
+
+        const activeImages =
+          data.map(
+            (
+              slide: HeroSlide
+            ) =>
+              slide.image_url
+          );
+
+        setImages(
+          activeImages
+        );
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+  if (
+    !loading &&
+    images.length === 0
+  ) {
+    return null;
+  }
 
   return (
     <div className="flex justify-center">
@@ -49,10 +94,6 @@ export default function HeroSection() {
               id="heros"
             />
           </div>
-
-          {/* <button className="mt-5 bg-red-500 text-white px-5 py-2 text-base font-medium tracking-wider cursor-pointer will-change-transform antialiased">
-            Explore
-          </button> */}
         </div>
 
         {/* Image Section */}
@@ -61,7 +102,8 @@ export default function HeroSection() {
           <div className="absolute top-0 left-0 w-full h-6 md:h-10 bg-white rounded-bl-[50%_100%] rounded-br-[50%_100%] z-10"></div>
 
           <div className="flex w-max animate-scroll gap-1 sm:gap-2 will-change-transform">
-            {[...images, ...images].map((src, i) => (
+            {/* {[...images, ...images].map((src, i) => ( */}
+            {images.map((src, i) => (
               <div key={i}
                 className="relative w-72 md:w-80 lg:w-[22rem] h-72 md:h-[22rem] lg:h-[26rem] aspect-[3/4] shrink-0 overflow-hidden"
               >

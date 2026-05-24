@@ -135,7 +135,7 @@ export default function AddCollectionCategoryForm() {
                 }}
               />
 
-              <FieldDescription>
+              <FieldDescription className="!mt-0.5">
                 Category display name
               </FieldDescription>
 
@@ -157,7 +157,7 @@ export default function AddCollectionCategoryForm() {
                 {...register("slug")}
               />
 
-              <FieldDescription>
+              <FieldDescription className="!mt-0.5">
                 Used in URLs
               </FieldDescription>
 
@@ -183,7 +183,7 @@ export default function AddCollectionCategoryForm() {
                 )}
               />
 
-              <FieldDescription>
+              <FieldDescription className="!mt-0.5">
                 Lower numbers appear first
               </FieldDescription>
 
@@ -203,7 +203,7 @@ export default function AddCollectionCategoryForm() {
                   Active Status
                 </FieldTitle>
 
-                <FieldDescription>
+                <FieldDescription className="!mt-0.5">
                   Enable or disable this category
                 </FieldDescription>
               </FieldContent>

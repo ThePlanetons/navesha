@@ -145,7 +145,7 @@ export default function Collections() {
       <div className="w-full">
         {/* Header */}
         <h2 className="text-lg sm:text-xl md:text-2xl font-semibold mb-4">
-          Popular Collections
+          Featured Collections
         </h2>
 
         {/* Filters */}

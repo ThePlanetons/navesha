@@ -15,7 +15,6 @@ import { Field, FieldContent, FieldDescription, FieldError, FieldGroup, FieldLab
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { Textarea } from "@/components/ui/textarea";
 
 type Category = {
   id: string;
@@ -27,7 +26,6 @@ export type PopularCollection = {
   category_id: string;
   title: string;
   slug: string;
-  description: string;
   is_active: boolean;
   sort_order: number;
 };
@@ -36,12 +34,10 @@ const formSchema = z.object({
   category_id: z.string().uuid(
     "Please select a category"
   ),
-
   title: z
     .string()
     .min(2, "Title is required")
     .max(150),
-
   slug: z
     .string()
     .min(2, "Slug is required")
@@ -49,25 +45,19 @@ const formSchema = z.object({
       /^[a-z0-9-]+$/,
       "Only lowercase letters, numbers and hyphens allowed"
     ),
-
-  description: z.string().optional(),
-
   sort_order: z.coerce.number(),
-
   is_active: z.boolean(),
 });
 
-type FormValues = z.input<
-  typeof formSchema
->;
+type FormValues = z.input<typeof formSchema>;
 
-type PopularCollectionFormProps = {
+type CollectionFormProps = {
   initialData?: PopularCollection;
 
   onSuccess?: () => void;
 };
 
-export default function PopularCollectionForm({ initialData, onSuccess, }: PopularCollectionFormProps) {
+export default function CollectionForm({ initialData, onSuccess, }: CollectionFormProps) {
   const [categories, setCategories] = useState<Category[]>([]);
 
   const isEdit = !!initialData;
@@ -86,7 +76,6 @@ export default function PopularCollectionForm({ initialData, onSuccess, }: Popul
       category_id: initialData?.category_id || "",
       title: initialData?.title || "",
       slug: initialData?.slug || "",
-      description: initialData?.description || "",
       sort_order: initialData?.sort_order || 0,
       is_active: initialData?.is_active ?? true,
     },
@@ -140,8 +129,7 @@ export default function PopularCollectionForm({ initialData, onSuccess, }: Popul
             : "POST",
 
           headers: {
-            "Content-Type":
-              "application/json",
+            "Content-Type": "application/json",
           },
 
           body: JSON.stringify(values),
@@ -195,9 +183,7 @@ export default function PopularCollectionForm({ initialData, onSuccess, }: Popul
                     (category) => (
                       <SelectItem
                         key={category.id}
-                        value={
-                          category.id
-                        }
+                        value={category.id}
                       >
                         {category.name}
                       </SelectItem>
@@ -206,17 +192,13 @@ export default function PopularCollectionForm({ initialData, onSuccess, }: Popul
                 </SelectContent>
               </Select>
 
-              <FieldDescription>
+              <FieldDescription className="!mt-0.5">
                 Select parent category
               </FieldDescription>
 
               {errors.category_id && (
                 <FieldError>
-                  {
-                    errors
-                      .category_id
-                      .message
-                  }
+                  {errors.category_id.message}
                 </FieldError>
               )}
             </FieldContent>
@@ -233,34 +215,19 @@ export default function PopularCollectionForm({ initialData, onSuccess, }: Popul
                 placeholder="Marvel Collection"
                 {...register("title")}
                 onChange={(e) => {
-                  const value =
-                    e.target.value;
-
-                  setValue(
-                    "title",
-                    value
-                  );
-
-                  setValue(
-                    "slug",
-                    generateSlug(
-                      value
-                    )
-                  );
+                  const value = e.target.value;
+                  setValue("title", value);
+                  setValue("slug", generateSlug(value));
                 }}
               />
 
-              <FieldDescription>
-                Collection display
-                title
+              <FieldDescription className="!mt-0.5">
+                Collection display title
               </FieldDescription>
 
               {errors.title && (
                 <FieldError>
-                  {
-                    errors.title
-                      .message
-                  }
+                  {errors.title.message}
                 </FieldError>
               )}
             </FieldContent>
@@ -278,48 +245,13 @@ export default function PopularCollectionForm({ initialData, onSuccess, }: Popul
                 {...register("slug")}
               />
 
-              <FieldDescription>
+              <FieldDescription className="!mt-0.5">
                 Used in URLs
               </FieldDescription>
 
               {errors.slug && (
                 <FieldError>
-                  {
-                    errors.slug
-                      .message
-                  }
-                </FieldError>
-              )}
-            </FieldContent>
-          </Field>
-
-          {/* Description */}
-          <Field>
-            <FieldLabel>
-              Description
-            </FieldLabel>
-
-            <FieldContent>
-              <Textarea
-                rows={5}
-                placeholder="Enter collection description"
-                {...register(
-                  "description"
-                )}
-              />
-
-              <FieldDescription>
-                Optional short
-                description
-              </FieldDescription>
-
-              {errors.description && (
-                <FieldError>
-                  {
-                    errors
-                      .description
-                      .message
-                  }
+                  {errors.slug.message}
                 </FieldError>
               )}
             </FieldContent>
@@ -339,18 +271,13 @@ export default function PopularCollectionForm({ initialData, onSuccess, }: Popul
                 )}
               />
 
-              <FieldDescription>
-                Lower numbers appear
-                first
+              <FieldDescription className="!mt-0.5">
+                Lower numbers appear first
               </FieldDescription>
 
               {errors.sort_order && (
                 <FieldError>
-                  {
-                    errors
-                      .sort_order
-                      .message
-                  }
+                  {errors.sort_order.message}
                 </FieldError>
               )}
             </FieldContent>
@@ -364,22 +291,16 @@ export default function PopularCollectionForm({ initialData, onSuccess, }: Popul
                   Active Status
                 </FieldTitle>
 
-                <FieldDescription>
-                  Enable or disable
-                  this collection
+                <FieldDescription className="!mt-0.5">
+                  Enable or disable this collection
                 </FieldDescription>
               </FieldContent>
 
               <Switch
                 id="is_active"
                 checked={isActive}
-                onCheckedChange={(
-                  checked
-                ) =>
-                  setValue(
-                    "is_active",
-                    checked
-                  )
+                onCheckedChange={
+                  (checked) => setValue("is_active", checked)
                 }
               />
             </Field>

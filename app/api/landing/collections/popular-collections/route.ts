@@ -15,7 +15,7 @@ const supabase = createClient(
 
 export async function GET() {
   const { data, error } = await supabase
-    .from("popular_collections")
+    .from("]collections")
     .select(`
       *,
       collection_categories (

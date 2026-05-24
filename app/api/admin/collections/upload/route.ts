@@ -6,8 +6,7 @@ export async function POST(
   request: Request
 ) {
   try {
-    const formData =
-      await request.formData();
+    const formData = await request.formData();
 
     const file = formData.get("file") as File;
 
@@ -75,33 +74,25 @@ export async function POST(
     }
 
     /* Public URL */
-    const { data } =
-      supabaseAdmin.storage
-        .from("uploads")
-        .getPublicUrl(
-          filePath
-        );
+    const { data } = supabaseAdmin.storage
+      .from("uploads")
+      .getPublicUrl(
+        filePath
+      );
 
     /* Insert DB Record */
-    const {
-      data: imageRecord,
-      error: dbError,
-    } =
-      await supabaseAdmin
-        .from(
-          "collection_images"
-        )
-        .insert({
-          collection_id: collectionId,
-
-          image_url: data.publicUrl,
-
-          image_type: imageType,
-
-          sort_order: 0,
-        })
-        .select()
-        .single();
+    const { data: imageRecord, error: dbError, } = await supabaseAdmin
+      .from(
+        "collection_images"
+      )
+      .insert({
+        collection_id: collectionId,
+        image_url: data.publicUrl,
+        image_type: imageType,
+        sort_order: 0,
+      })
+      .select()
+      .single();
 
     if (dbError) {
       return NextResponse.json(

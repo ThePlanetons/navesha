@@ -1,4 +1,4 @@
-// app/api/admin/collections/popular-collections/[id]/route.ts
+// app/api/admin/featured-collections/collections/[id]/route.ts
 
 import { NextRequest, NextResponse } from "next/server";
 
@@ -15,16 +15,14 @@ export async function GET(
   }
 ) {
   try {
-    const { id } =
-      await context.params;
+    const { id } = await context.params;
 
-    const supabase =
-      await createClient();
+    const supabase = await createClient();
 
     const { data, error } =
       await supabase
         .from(
-          "collection_images"
+          "collections"
         )
         .select("*")
         .eq(
@@ -41,8 +39,7 @@ export async function GET(
     if (error) {
       return NextResponse.json(
         {
-          error:
-            error.message,
+          error: error.message,
         },
         {
           status: 400,
@@ -58,8 +55,7 @@ export async function GET(
 
     return NextResponse.json(
       {
-        error:
-          "Internal server error",
+        error: "Internal server error",
       },
       {
         status: 500,
@@ -79,7 +75,7 @@ export async function PUT(request: NextRequest, { params, }: { params: Promise<{
     const { data, error } =
       await supabase
         .from(
-          "popular_collections"
+          "collections"
         )
         .update(body)
         .eq("id", id)

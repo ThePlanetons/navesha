@@ -50,21 +50,20 @@ const data = {
   ],
   navMain: [
     {
-      title: "Landing",
+      title: "Landing Page",
       url: "#",
       icon: (
-        <TerminalSquareIcon
-        />
+        <TerminalSquareIcon />
       ),
       isActive: true,
       items: [
         {
-          title: "Hero Section",
-          url: "#",
+          title: "Hero Sections",
+          url: "/admin/hero-sections",
         },
         {
-          title: "Popular Collections",
-          url: "/admin/collections",
+          title: "Featured Collections",
+          url: "/admin/featured-collections",
         },
       ],
     },

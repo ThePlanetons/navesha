@@ -17,10 +17,10 @@ const supabase = createClient(
 
 export async function GET() {
   const { data, error } = await supabase
-    .from("collection_images")
+    .from("collections")
     .select(`
       *,
-      popular_collections (
+      collections (
         id,
         title,
         slug

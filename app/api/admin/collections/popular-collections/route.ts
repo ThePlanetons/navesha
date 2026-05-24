@@ -17,7 +17,7 @@ const supabase = createClient(
 
 export async function GET() {
   const { data, error } = await supabase
-    .from("popular_collections")
+    .from("collections")
     .select("*")
     .order("sort_order", {
       ascending: true,
@@ -37,7 +37,7 @@ export async function POST(request: Request) {
   const body = await request.json();
 
   const { data, error } = await supabase
-    .from("popular_collections")
+    .from("collections")
     .insert([body])
     .select()
     .single();

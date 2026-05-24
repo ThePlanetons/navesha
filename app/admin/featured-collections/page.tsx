@@ -2,6 +2,9 @@
 
 import { useEffect, useState } from "react";
 
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+
 import { FolderKanban, Pencil, Trash2, Plus, ImageIcon, } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
@@ -11,11 +14,13 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, } from
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 
-import AddCollectionCategoryForm from "../collection-categories/add-collection-category-form";
-import PopularCollectionForm, { PopularCollection } from "./popular-collection-form";
-import CollectionImagesManager from "../collection-images/collection-images-manager";
+import AddCollectionCategoryForm from "./collection-category-form";
+import CollectionForm, { PopularCollection } from "./collection-form";
+import CollectionImagesManager from "./[slug]/_components/collection-product-images-manager";
 
-export default function PopularCollections() {
+export default function Page() {
+  const router = useRouter();
+
   const [collections, setCollections] = useState<PopularCollection[]>([]);
 
   const [loading, setLoading] = useState(true);
@@ -48,11 +53,11 @@ export default function PopularCollections() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">
-            Popular Collections
+            Featured Collections
           </h1>
 
           <p className="text-muted-foreground mt-1">
-            Manage your storefront collections
+            Manage your storefront featured collections
           </p>
         </div>
 
@@ -62,6 +67,7 @@ export default function PopularCollections() {
             <DialogTrigger asChild>
               <Button className="rounded-xl">
                 <Plus className="h-4 w-4" />
+
                 Add Category
               </Button>
             </DialogTrigger>
@@ -100,7 +106,7 @@ export default function PopularCollections() {
               <Separator />
 
               <div className="flex-1 overflow-y-auto p-4">
-                <PopularCollectionForm />
+                <CollectionForm />
               </div>
             </DialogContent>
           </Dialog>
@@ -109,24 +115,46 @@ export default function PopularCollections() {
 
       {/* Empty State */}
       {!loading && collections.length === 0 && (
-        <Card className="rounded-3xl border-dashed">
-          <CardContent className="flex flex-col items-center justify-center py-20 text-center">
-            <div className="mb-4 rounded-2xl bg-muted p-4">
-              <FolderKanban className="h-10 w-10 text-muted-foreground" />
+        <Card className="flex flex-col items-center justify-center text-center rounded-3xl py-0 gap-0 border-dashed">
+          <CardContent className="flex max-w-md flex-col items-center justify-center space-y-6 p-10">
+            <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-muted">
+              <FolderKanban className="text-muted-foreground h-10 w-10" />
             </div>
 
-            <h2 className="text-xl font-semibold">
-              No collections found
-            </h2>
+            <div className="space-y-2">
+              <h2 className="text-2xl font-semibold">
+                No collections found
+              </h2>
 
-            <p className="mt-2 max-w-md text-sm text-muted-foreground">
-              Create your first popular collection to
-              organize products and showcase categories.
-            </p>
+              <p className="text-muted-foreground text-sm">
+                Create your first popular collection to
+                organize products and showcase categories.
+              </p>
+            </div>
 
-            <Button className="mt-6 rounded-xl">
-              Create Collection
-            </Button>
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button size="lg" className="rounded-xl">
+                  <Plus className="h-4 w-4" />
+
+                  Create First Collection
+                </Button>
+              </DialogTrigger>
+
+              <DialogContent className="flex max-h-[90vh] flex-col overflow-hidden gap-0 p-0 sm:max-w-lg [&>button]:top-3 [&>button]:right-4">
+                <DialogHeader className="shrink-0 px-4 py-3 text-left">
+                  <DialogTitle className="text-xl">
+                    Create Slide
+                  </DialogTitle>
+                </DialogHeader>
+
+                <Separator />
+
+                <div className="flex-1 overflow-y-auto p-4">
+                  <CollectionForm />
+                </div>
+              </DialogContent>
+            </Dialog>
           </CardContent>
         </Card>
       )}
@@ -135,11 +163,10 @@ export default function PopularCollections() {
       {loading && (
         <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
           {Array.from({ length: 6 }).map((_, index) => (
-            <Card
+            <Card className="rounded-3xl py-0 gap-0"
               key={index}
-              className="rounded-3xl py-0"
             >
-              <CardContent className="space-y-3 p-5">
+              <CardContent className="space-y-3 p-4">
                 <Skeleton className="h-40 w-full rounded-2xl" />
 
                 <Skeleton className="h-6 w-40" />
@@ -157,9 +184,13 @@ export default function PopularCollections() {
       {!loading && collections.length > 0 && (
         <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
           {collections.map((collection) => (
-            <Card
+            <Card className="rounded-3xl py-0 gap-0 cursor-pointer group overflow-hidden border transition-all hover:-translate-y-1 hover:shadow-lg"
               key={collection.id}
-              className="group overflow-hidden rounded-3xl border transition-all hover:-translate-y-1 hover:shadow-lg py-0 gap-0"
+              onClick={() =>
+                router.push(
+                  `/admin/featured-collections/${collection.slug}`
+                )
+              }
             >
               {/* Banner */}
               <div className="relative h-24 overflow-hidden bg-gradient-to-br from-muted to-muted/40">
@@ -183,7 +214,7 @@ export default function PopularCollections() {
                 </div>
               </div>
 
-              <CardContent className="space-y-3 p-5">
+              <CardContent className="space-y-3 p-4">
                 {/* Content */}
                 <div>
                   <h2 className="line-clamp-1 text-xl font-semibold">
@@ -195,25 +226,22 @@ export default function PopularCollections() {
                   </p>
                 </div>
 
-                {/* Description */}
-                <p className="line-clamp-2 text-sm text-muted-foreground">
-                  {collection.description ||
-                    "No description added"}
-                </p>
-
                 {/* Footer */}
                 <div className="flex items-center justify-between">
-                  <div className="text-xs text-muted-foreground">
-                    Sort:{" "}
-                    {collection.sort_order || 0}
+                  <div className="inline-flex text-sm">
+                    <div className="text-muted-foreground">Sort Order&nbsp;</div>
+
+                    <div className="font-medium">
+                      {collection.sort_order || 0}
+                    </div>
                   </div>
 
                   <div className="flex items-center gap-2">
                     {/* Edit Collection */}
                     <Dialog>
                       <DialogTrigger asChild>
-                        <Button size="icon" variant="outline" className="rounded-xl">
-                          <Pencil className="h-4 w-4" />
+                        <Button variant="outline" className="size-12 rounded-full">
+                          <Pencil className="!h-6 !w-6" />
                         </Button>
                       </DialogTrigger>
 
@@ -227,7 +255,7 @@ export default function PopularCollections() {
                         <Separator />
 
                         <div className="flex-1 overflow-y-auto p-4">
-                          <PopularCollectionForm
+                          <CollectionForm
                             initialData={collection}
                             onSuccess={() => {
                               fetchCollections();
@@ -237,42 +265,11 @@ export default function PopularCollections() {
                       </DialogContent>
                     </Dialog>
 
-                    {/* Manage Images */}
-                    <Dialog>
-                      <DialogTrigger asChild>
-                        <Button
-                          size="icon"
-                          variant="secondary"
-                          className="rounded-xl"
-                        >
-                          <ImageIcon className="h-4 w-4" />
-                        </Button>
-                      </DialogTrigger>
-
-                      <DialogContent className="flex max-h-[90vh] flex-col overflow-hidden p-0 xl:min-w-7xl gap-0 [&>button]:top-3 [&>button]:right-4">
-                        <DialogHeader className="shrink-0 px-4 py-3 text-left">
-                          <DialogTitle className="text-xl">
-                            Manage Collection Images
-                          </DialogTitle>
-                        </DialogHeader>
-
-                        <Separator />
-
-                        <div className="flex-1 overflow-y-auto p-4">
-                          <CollectionImagesManager
-                            collection={collection}
-                          />
-                        </div>
-                      </DialogContent>
-                    </Dialog>
-
-                    {/* Delete */}
-                    <Button
-                      size="icon"
-                      variant="destructive"
-                      className="rounded-xl"
-                    >
-                      <Trash2 className="h-4 w-4" />
+                    {/* Manage Products */}
+                    <Button asChild variant="outline" className="size-12 rounded-full">
+                      <Link href={`/admin/featured-collections/${collection.id}`}>
+                        <FolderKanban className="!h-6 !w-6" />
+                      </Link>
                     </Button>
                   </div>
                 </div>

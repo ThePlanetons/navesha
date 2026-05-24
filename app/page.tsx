@@ -15,7 +15,7 @@ import { useEffect, useState } from "react";
 
 // import TopBanner from "./landing/top-banner";
 import Navbar from "./landing/navbar";
-import HeroSection from "./landing/hero-section";
+import HeroSection from "./landing/hero-sections";
 import Collections from "./landing/collections";
 
 export default function Home() {

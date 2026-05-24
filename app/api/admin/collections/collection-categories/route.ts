@@ -1,20 +1,8 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-if (!supabaseUrl || !serviceRoleKey) {
-  throw new Error("Missing Supabase environment variables");
-}
-
-const supabase = createClient(
-  supabaseUrl,
-  serviceRoleKey
-);
+import { supabaseAdmin } from "@/lib/supabase/admin";
 
 export async function GET() {
-  const { data, error } = await supabase
+  const { data, error } = await supabaseAdmin
     .from("collection_categories")
     .select("*")
     .order("sort_order", {
@@ -35,7 +23,7 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
 
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from("collection_categories")
       .insert([body])
       .select()
