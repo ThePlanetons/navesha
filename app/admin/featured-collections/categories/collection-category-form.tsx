@@ -1,6 +1,6 @@
-"use client";
+// app/admin/featured-collections/categories/collection-category-form.tsx
 
-import { useEffect, useState } from "react";
+"use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -11,59 +11,42 @@ import { z } from "zod";
 import { Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { Field, FieldContent, FieldDescription, FieldError, FieldGroup, FieldLabel, FieldSet, FieldTitle, } from "@/components/ui/field";
+import { Field, FieldContent, FieldDescription, FieldError, FieldGroup, FieldLabel, FieldSet, FieldTitle } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 
-type Category = {
-  id: string;
-  name: string;
-};
-
-export type PopularCollection = {
-  id: string;
-  category_id: string;
-  title: string;
-  slug: string;
-  is_active: boolean;
-  sort_order: number;
-
-  collection_categories?: {
-    name: string;
-  };
-};
-
 const formSchema = z.object({
-  category_id: z.string().uuid(
-    "Please select a category"
-  ),
-  title: z
+  name: z
     .string()
-    .min(2, "Title is required")
-    .max(150),
+    .min(2, "Category name is required"),
+
   slug: z
     .string()
-    .min(2, "Slug is required")
-    .regex(
-      /^[a-z0-9-]+$/,
-      "Only lowercase letters, numbers and hyphens allowed"
-    ),
+    .min(2, "Slug is required"),
+
   sort_order: z.coerce.number(),
+
   is_active: z.boolean(),
 });
 
-type FormValues = z.input<typeof formSchema>;
+type CollectionCategory = {
+  id: string;
+  name: string;
+  slug: string;
+  sort_order?: number;
+  is_active?: boolean;
+};
 
-type CollectionFormProps = {
-  initialData?: PopularCollection;
+type CollectionCategoryFormProps = {
+  initialData?: CollectionCategory;
 
   onSuccess?: () => void;
 };
 
-export default function CollectionForm({ initialData, onSuccess, }: CollectionFormProps) {
-  const [categories, setCategories] = useState<Category[]>([]);
+type FormValues =
+  z.input<typeof formSchema>;
 
+export default function AddCollectionCategoryForm({ initialData, onSuccess, }: CollectionCategoryFormProps) {
   const isEdit = !!initialData;
 
   const {
@@ -71,14 +54,16 @@ export default function CollectionForm({ initialData, onSuccess, }: CollectionFo
     handleSubmit,
     setValue,
     watch,
+    formState: {
+      errors,
+      isSubmitting,
+    },
     reset,
-    formState: { errors, isSubmitting, },
   } = useForm<FormValues>({
     resolver: zodResolver(formSchema),
 
     defaultValues: {
-      category_id: initialData?.category_id || "",
-      title: initialData?.title || "",
+      name: initialData?.name || "",
       slug: initialData?.slug || "",
       sort_order: initialData?.sort_order || 0,
       is_active: initialData?.is_active ?? true,
@@ -86,29 +71,8 @@ export default function CollectionForm({ initialData, onSuccess, }: CollectionFo
   });
 
   const isActive = watch("is_active");
-  const selectedCategoryId = watch("category_id");
 
-  useEffect(() => {
-    fetchCategories();
-  }, []);
-
-  const fetchCategories = async () => {
-    try {
-      const response = await fetch(
-        "/api/admin/featured-collections/collection-categories"
-      );
-
-      const data = await response.json();
-
-      setCategories(data || []);
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const generateSlug = (
-    value: string
-  ) => {
+  const generateSlug = (value: string) => {
     return value
       .toLowerCase()
       .trim()
@@ -119,18 +83,14 @@ export default function CollectionForm({ initialData, onSuccess, }: CollectionFo
       .replace(/\s+/g, "-");
   };
 
-  const onSubmit = async (
-    values: FormValues
-  ) => {
+  const onSubmit = async (values: FormValues) => {
     try {
       const response = await fetch(
         isEdit
-          ? `/api/admin/featured-collections/${initialData.id}`
-          : "/api/admin/featured-collections",
+          ? `/api/admin/featured-collections/collection-categories/${initialData.id}`
+          : "/api/admin/featured-collections/collection-categories",
         {
-          method: isEdit
-            ? "PUT"
-            : "POST",
+          method: isEdit ? "PUT" : "POST",
 
           headers: {
             "Content-Type": "application/json",
@@ -143,7 +103,8 @@ export default function CollectionForm({ initialData, onSuccess, }: CollectionFo
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error);
+        throw new Error(data.error || "Failed to save category"
+        );
       }
 
       if (!isEdit) {
@@ -162,76 +123,33 @@ export default function CollectionForm({ initialData, onSuccess, }: CollectionFo
     >
       <FieldSet className="space-y-4 gap-0">
         <FieldGroup>
-          {/* Category */}
+          {/* Name */}
           <Field>
             <FieldLabel>
-              Category
-            </FieldLabel>
-
-            <FieldContent>
-              <Select
-                value={selectedCategoryId}
-                onValueChange={(value) =>
-                  setValue(
-                    "category_id",
-                    value
-                  )
-                }
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select category" />
-                </SelectTrigger>
-
-                <SelectContent>
-                  {categories.map(
-                    (category) => (
-                      <SelectItem
-                        key={category.id}
-                        value={category.id}
-                      >
-                        {category.name}
-                      </SelectItem>
-                    )
-                  )}
-                </SelectContent>
-              </Select>
-
-              <FieldDescription className="!mt-0.5">
-                Select parent category
-              </FieldDescription>
-
-              {errors.category_id && (
-                <FieldError>
-                  {errors.category_id.message}
-                </FieldError>
-              )}
-            </FieldContent>
-          </Field>
-
-          {/* Title */}
-          <Field>
-            <FieldLabel>
-              Title
+              Category Name
             </FieldLabel>
 
             <FieldContent>
               <Input
-                placeholder="Marvel Collection"
-                {...register("title")}
+                placeholder="Featured Universes"
+                {...register("name")}
                 onChange={(e) => {
                   const value = e.target.value;
-                  setValue("title", value);
-                  setValue("slug", generateSlug(value));
+
+                  setValue("name", value);
+
+                  setValue("slug", generateSlug(value)
+                  );
                 }}
               />
 
               <FieldDescription className="!mt-0.5">
-                Collection display title
+                Category display name
               </FieldDescription>
 
-              {errors.title && (
+              {errors.name && (
                 <FieldError>
-                  {errors.title.message}
+                  {errors.name.message}
                 </FieldError>
               )}
             </FieldContent>
@@ -245,8 +163,10 @@ export default function CollectionForm({ initialData, onSuccess, }: CollectionFo
 
             <FieldContent>
               <Input
-                placeholder="marvel-collection"
-                {...register("slug")}
+                placeholder="featured-universes"
+                {...register(
+                  "slug"
+                )}
               />
 
               <FieldDescription className="!mt-0.5">
@@ -276,7 +196,8 @@ export default function CollectionForm({ initialData, onSuccess, }: CollectionFo
               />
 
               <FieldDescription className="!mt-0.5">
-                Lower numbers appear first
+                Lower numbers
+                appear first
               </FieldDescription>
 
               {errors.sort_order && (
@@ -287,7 +208,7 @@ export default function CollectionForm({ initialData, onSuccess, }: CollectionFo
             </FieldContent>
           </Field>
 
-          {/* Active Status */}
+          {/* Active */}
           <FieldLabel htmlFor="is_active">
             <Field orientation="horizontal">
               <FieldContent>
@@ -296,15 +217,24 @@ export default function CollectionForm({ initialData, onSuccess, }: CollectionFo
                 </FieldTitle>
 
                 <FieldDescription className="!mt-0.5">
-                  Enable or disable this collection
+                  Enable or
+                  disable this
+                  category
                 </FieldDescription>
               </FieldContent>
 
               <Switch
                 id="is_active"
-                checked={isActive}
-                onCheckedChange={
-                  (checked) => setValue("is_active", checked)
+                checked={
+                  isActive
+                }
+                onCheckedChange={(
+                  checked
+                ) =>
+                  setValue(
+                    "is_active",
+                    checked
+                  )
                 }
               />
             </Field>
@@ -321,7 +251,7 @@ export default function CollectionForm({ initialData, onSuccess, }: CollectionFo
               </>
             ) : (
               <>
-                {isEdit ? "Update Collection" : "Create Collection"}
+                {isEdit ? "Update Category" : "Create Category"}
               </>
             )}
           </Button>

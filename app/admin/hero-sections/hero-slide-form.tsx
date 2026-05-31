@@ -174,7 +174,7 @@ export default function HeroSlideForm({
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <FieldSet className="space-y-5 gap-0">
+      <FieldSet className="space-y-4 gap-0">
         <FieldGroup>
           {/* Upload */}
           <Field>
@@ -283,18 +283,12 @@ export default function HeroSlideForm({
         </FieldGroup>
 
         <div className="flex justify-end">
-          <Button
-            type="submit"
-            disabled={
-              isSubmitting ||
-              uploading
-            }
-            className="rounded-xl"
-          >
+          <Button type="submit" disabled={isSubmitting || uploading} className="rounded-xl">
             {isSubmitting ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Saving...
+                <Loader2 className="h-4 w-4 animate-spin" />
+
+                {isEdit ? "Updating..." : "Creating..."}
               </>
             ) : (
               <>

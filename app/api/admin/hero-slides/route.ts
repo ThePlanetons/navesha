@@ -38,7 +38,7 @@ export async function GET() {
 
             const {
               data:
-                storageData,
+              storageData,
             } =
               await supabaseAdmin.storage
                 .from("uploads")
@@ -60,14 +60,9 @@ export async function GET() {
       slides
     );
   } catch (error) {
-    console.error(error);
-
     return NextResponse.json(
       {
-        error:
-          error instanceof Error
-            ? error.message
-            : String(error),
+        error: error instanceof Error ? error.message : String(error),
       },
       {
         status: 500,
@@ -75,50 +70,6 @@ export async function GET() {
     );
   }
 }
-
-// export async function GET() {
-//   try {
-
-//     const { data, error } =
-//       await supabaseAdmin
-//         .from("hero_slides")
-//         .select("*")
-//         .order(
-//           "sort_order",
-//           {
-//             ascending: true,
-//           }
-//         );
-
-//     if (error) {
-//       return NextResponse.json(
-//         {
-//           error:
-//             error.message,
-//         },
-//         {
-//           status: 400,
-//         }
-//       );
-//     }
-
-//     return NextResponse.json(
-//       data
-//     );
-//   } catch (error) {
-//     console.error(error);
-
-//     return NextResponse.json(
-//       {
-//         error:
-//           "Internal server error",
-//       },
-//       {
-//         status: 500,
-//       }
-//     );
-//   }
-// }
 
 export async function POST(
   request: Request
@@ -164,12 +115,9 @@ export async function POST(
       data
     );
   } catch (error) {
-    console.error(error);
-
     return NextResponse.json(
       {
-        error:
-          "Internal server error",
+        error: error instanceof Error ? error.message : String(error),
       },
       {
         status: 500,

@@ -1,3 +1,5 @@
+// app/api/admin/featured-collections/collection-images/[id]/route.ts
+
 import { NextRequest, NextResponse } from "next/server";
 
 import { supabaseAdmin } from "@/lib/supabase/admin";
@@ -6,23 +8,15 @@ type Params = Promise<{
   id: string;
 }>;
 
-// =========================
-// UPDATE HERO SLIDE
-// =========================
-
-export async function PUT(request: NextRequest, context: { params: Params; }) {
+export async function PUT(request: NextRequest, context: { params: Params }) {
   try {
     const { id } = await context.params;
 
     const body = await request.json();
 
-    const { data, error, } = await supabaseAdmin
-      .from("hero_slides")
-      .update({
-        image_url: body.image_url,
-        sort_order: body.sort_order,
-        is_active: body.is_active,
-      })
+    const { data, error } = await supabaseAdmin
+      .from("collection_images")
+      .update({ image_type: body.image_type, })
       .eq("id", id)
       .select()
       .single();
@@ -30,7 +24,8 @@ export async function PUT(request: NextRequest, context: { params: Params; }) {
     if (error) {
       return NextResponse.json(
         {
-          error: error.message,
+          error:
+            error.message,
         },
         {
           status: 400,
@@ -53,50 +48,43 @@ export async function PUT(request: NextRequest, context: { params: Params; }) {
   }
 }
 
-// =========================
-// DELETE HERO SLIDE
-// =========================
-
 export async function DELETE(_request: NextRequest, context: { params: Params; }) {
   try {
     const { id } = await context.params;
 
-    // -------------------------
-    // Get image
-    // -------------------------
-
-    const { data: slide, error: fetchError, } = await supabaseAdmin
-      .from("hero_slides")
-      .select("image_url")
+    // -----------------------------------
+    // Get image first
+    // -----------------------------------
+    const { data: image, error: fetchError, } = await supabaseAdmin
+      .from("collection_images")
+      .select("*")
       .eq("id", id)
       .single();
 
-    if (fetchError || !slide) {
-      throw new Error("Slide not found");
+    if (fetchError || !image) {
+      throw new Error("Image not found");
     }
 
     // -------------------------
-    // Extract storage path
+    // Delete storage file
     // -------------------------
-
-    const path = slide.image_url.split("/storage/v1/object/public/uploads/")[1];
-
-    // -------------------------
-    // Delete image
-    // -------------------------
+    const path = image.image_url.split("/storage/v1/object/public/uploads/")[1];
 
     if (path) {
-      await supabaseAdmin.storage
+      const { error: storageError, } = await supabaseAdmin.storage
         .from("uploads")
         .remove([path]);
+
+      if (storageError) {
+        throw new Error(storageError.message);
+      }
     }
 
-    // -------------------------
+    // -----------------------------------
     // Delete DB row
-    // -------------------------
-
+    // -----------------------------------
     const { error: deleteError, } = await supabaseAdmin
-      .from("hero_slides")
+      .from("collection_images")
       .delete()
       .eq("id", id);
 
@@ -104,10 +92,12 @@ export async function DELETE(_request: NextRequest, context: { params: Params; }
       throw new Error(deleteError.message);
     }
 
-    return NextResponse.json({
-      success: true,
-      message: "Slide deleted successfully",
-    });
+    return NextResponse.json(
+      {
+        success: true,
+        message: "Image deleted successfully",
+      }
+    );
   } catch (error) {
     return NextResponse.json(
       {

@@ -193,7 +193,7 @@ export default function HeroSectionsPage() {
       {loading && (
         <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
           {Array.from({ length: 6 }).map((_, index) => (
-            <Card className="rounded-3xl py-0 gap-0"
+            <Card className="rounded-3xl py-0 gap-0 border-dashed"
               key={index}
             >
               <CardContent className="space-y-3 p-4">
@@ -215,7 +215,7 @@ export default function HeroSectionsPage() {
         <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
           {slides.map(
             (slide) => (
-              <Card className="rounded-3xl py-0 gap-0"
+              <Card className="rounded-3xl py-0 gap-0 border-dashed"
                 key={slide.id}
               >
                 <div className="relative overflow-hidden rounded-t-3xl">

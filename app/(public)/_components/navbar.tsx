@@ -1,0 +1,102 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+
+import { ShoppingCart, CircleUserRound } from "lucide-react";
+import PillTabs from "./pill-tabs ";
+
+import { useCart } from "@/context/cart-provider";
+import { Drawer, DrawerTrigger } from "@/components/ui/drawer";
+import CartDrawer from "./cart-drawer";
+
+export default function Navbar({ scrolled }: { scrolled: boolean }) {
+  const router = useRouter();
+
+  const navItems = [
+    "Home",
+    "About",
+    "Features",
+    "Product",
+  ].map((item) => ({
+    label: item,
+    value: item.toLowerCase(),
+  }));
+
+  const [navActive, setNavActive] = useState("home");
+
+  const { cartCount } = useCart();
+
+  return (
+    <div
+      className="w-full flex justify-center transition-all duration-500 transform py-3"
+    >
+      <div
+        className={`flex items-center justify-between px-3 sm:px-4 md:px-6 lg:px-8 py-3 transition-all duration-500
+          ${scrolled
+            ? "w-[95%] md:w-[85%] lg:w-[75%] rounded-full backdrop-blur-xl bg-white/60 border border-white/30 shadow-lg"
+            : "w-full rounded-none bg-transparent"
+          }`
+        }
+      >
+        {/* Logo */}
+        <div className="font-semibold text-lg tracking-wide uppercase">
+          Navesha
+        </div>
+
+        {/* Nav Items */}
+        {/* <div className="hidden sm:flex bg-white/60 backdrop-blur-md border border-white/30 p-1 rounded-full shadow-sm"> */}
+        <div className="hidden sm:flex">
+          <PillTabs
+            items={navItems}
+            value={navActive}
+            onChange={setNavActive}
+            size="lg"
+            id="navbar"
+          />
+        </div>
+
+        <div className="flex items-center gap-2">
+          {/* Cart */}
+          <Drawer direction="right">
+            <DrawerTrigger asChild>
+              <button
+                className={`relative flex h-10 w-10 items-center justify-center rounded-full transition-all duration-300 ease-out
+                  ${scrolled
+                    ? "border border-white/30 bg-white/60 shadow-[0_4px_20px_rgba(0,0,0,0.08)] backdrop-blur-xl"
+                    : "border border-white/20 bg-white/30 backdrop-blur-md"
+                  }
+                  hover:scale-105 hover:bg-white/70 cursor-pointer
+                `}
+              >
+                <ShoppingCart className="h-7 w-7 text-gray-700" />
+
+                {cartCount > 0 && (
+                  <span className="absolute -right-1 -top-1 flex min-h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 text-[12px] font-medium text-white shadow-sm">
+                    {cartCount > 99 ? "99+" : cartCount}
+                  </span>
+                )}
+              </button>
+            </DrawerTrigger>
+
+            <CartDrawer />
+          </Drawer>
+
+          {/* User */}
+          <button
+            onClick={() => router.push("/auth/login")}
+            className={`flex items-center justify-center w-10 h-10 rounded-full transition-all duration-300 ease-out
+              ${scrolled
+                ? "bg-white/60 backdrop-blur-xl border border-white/30 shadow-[0_4px_20px_rgba(0,0,0,0.08)]"
+                : "bg-white/30 backdrop-blur-md border border-white/20"
+              }
+              hover:scale-105 hover:bg-white/70
+            `}
+          >
+            <CircleUserRound className="w-6 h-6 text-gray-700" />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}

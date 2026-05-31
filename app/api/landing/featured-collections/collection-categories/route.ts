@@ -4,26 +4,18 @@ import { supabaseAdmin } from "@/lib/supabase/admin";
 
 export async function GET() {
   try {
-    const { data, error } =
-      await supabaseAdmin
-        .from("hero_slides")
-        .select("*")
-        .eq(
-          "is_active",
-          true
-        )
-        .order(
-          "sort_order",
-          {
-            ascending: true,
-          }
-        );
+    const { data, error } = await supabaseAdmin
+      .from("collection_categories")
+      .select("*")
+      .eq("is_active", true)
+      .order("sort_order", {
+        ascending: true,
+      });
 
     if (error) {
       return NextResponse.json(
         {
-          error:
-            error.message,
+          message: error.message,
         },
         {
           status: 400,
@@ -31,9 +23,7 @@ export async function GET() {
       );
     }
 
-    return NextResponse.json(
-      data
-    );
+    return NextResponse.json(data);
   } catch (error) {
     return NextResponse.json(
       {

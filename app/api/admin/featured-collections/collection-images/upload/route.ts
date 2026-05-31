@@ -1,4 +1,4 @@
-// app/api/admin/featured-collections/collection-products/collection-product-images/upload/route.ts
+// app/api/admin/featured-collections/collection-images/upload/route.ts
 
 import { NextResponse } from "next/server";
 
@@ -28,7 +28,7 @@ export async function POST(request: Request) {
 
     const extension = file.name.split(".").pop();
 
-    const fileName = `collection-products/${Date.now()}-${crypto.randomUUID()}.${extension}`;
+    const fileName = `collections/${Date.now()}-${crypto.randomUUID()}.${extension}`;
 
     // -------------------------
     // Upload to storage

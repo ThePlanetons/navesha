@@ -50,7 +50,7 @@ const data = {
   ],
   navMain: [
     {
-      title: "Landing Page",
+      title: "Public Page",
       url: "#",
       icon: (
         <TerminalSquareIcon />
