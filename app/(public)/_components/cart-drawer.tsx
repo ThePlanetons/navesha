@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 
-import { Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
+import { Minus, Plus, Trash2 } from "lucide-react";
 
 import { useCart } from "@/context/cart-provider";
 
@@ -13,8 +13,13 @@ import { Button } from "@/components/ui/button";
 import { DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
 
 import { Product } from "../featured-collections/[slug]/_components/collection-products-view";
+import { Card, CardContent } from "@/components/ui/card";
 
-export default function CartDrawer() {
+type CartDrawerProps = {
+  onCheckout: () => void;
+};
+
+export default function CartDrawer({ onCheckout, }: CartDrawerProps) {
   const router = useRouter();
 
   const {
@@ -48,7 +53,7 @@ export default function CartDrawer() {
             .join(",");
 
         const response = await fetch(
-          `/api/landing/cart/products?skus=${skus}`
+          `/api/landing/checkout/cart?skus=${skus}`
         );
 
         const data = await response.json();
@@ -146,58 +151,51 @@ export default function CartDrawer() {
               )
             )}
           </div>
-        ) : cartItems.length ===
-          0 ? (
-          <div className="flex h-full flex-col items-center justify-center gap-4 text-center">
-            <ShoppingBag className="text-muted-foreground h-12 w-12" />
+        ) : cartItems.length === 0 ? (
+          <Card className="rounded-3xl py-0 gap-0 border-dashed">
+            <CardContent className="flex flex-col items-center gap-4 p-8 text-center">
+              <div className="text-4xl">
+                🛒
+              </div>
 
-            <div>
-              <h3 className="font-semibold">
-                Your cart is
-                empty
-              </h3>
+              <h1 className="text-2xl font-bold">
+                Your cart is empty
+              </h1>
 
-              <p className="text-muted-foreground text-sm">
-                Add products
-                to get
-                started
+              <p className="text-muted-foreground">
+                Add some products before proceeding to checkout.
               </p>
-            </div>
-          </div>
+
+              <Button
+                onClick={() => {
+                  onCheckout();
+
+                  router.push("/");
+                }}
+                className="rounded-xl"
+              >
+                Continue Shopping
+              </Button>
+            </CardContent>
+          </Card>
         ) : (
           <div className="space-y-4">
             {cartItems.map(
-              (
-                item
-              ) => {
-                const thumbnail =
-                  item.product.collection_product_images?.find(
-                    (
-                      image
-                    ) =>
-                      image.image_role ===
-                      "thumbnail"
-                  )
-                    ?.image_url;
+              (item) => {
+                const thumbnail = item.product.collection_product_images?.find(
+                  (image) => image.image_role === "thumbnail"
+                )?.image_url;
 
                 return (
                   <div
-                    key={
-                      item.sku
-                    }
+                    key={item.sku}
                     className="flex gap-3 rounded-2xl border p-3"
                   >
                     <div className="relative h-20 w-20 overflow-hidden rounded-xl bg-muted">
                       {thumbnail && (
                         <Image
-                          src={
-                            thumbnail
-                          }
-                          alt={
-                            item
-                              .product
-                              .name
-                          }
+                          src={thumbnail}
+                          alt={item.product.name}
                           fill
                           className="object-cover"
                         />
@@ -206,16 +204,11 @@ export default function CartDrawer() {
 
                     <div className="flex flex-1 flex-col">
                       <h4 className="line-clamp-2 font-medium">
-                        {
-                          item
-                            .product
-                            .name
-                        }
+                        {item.product.name}
                       </h4>
 
                       <p className="mt-1 font-semibold">
-                        ₹
-                        {item.product.price.toLocaleString()}
+                        ₹{item.product.price.toLocaleString()}
                       </p>
 
                       <div className="mt-auto flex items-center justify-between">
@@ -225,18 +218,14 @@ export default function CartDrawer() {
                             variant="outline"
                             className="size-8"
                             onClick={() =>
-                              decreaseQuantity(
-                                item.sku
-                              )
+                              decreaseQuantity(item.sku)
                             }
                           >
                             <Minus className="h-4 w-4" />
                           </Button>
 
                           <span className="min-w-6 text-center text-sm font-medium">
-                            {
-                              item.quantity
-                            }
+                            {item.quantity}
                           </span>
 
                           <Button
@@ -244,9 +233,7 @@ export default function CartDrawer() {
                             variant="outline"
                             className="size-8"
                             onClick={() =>
-                              addToCart(
-                                item.sku
-                              )
+                              addToCart(item.sku)
                             }
                           >
                             <Plus className="h-4 w-4" />
@@ -257,9 +244,7 @@ export default function CartDrawer() {
                           size="icon"
                           variant="ghost"
                           onClick={() =>
-                            removeFromCart(
-                              item.sku
-                            )
+                            removeFromCart(item.sku)
                           }
                         >
                           <Trash2 className="h-4 w-4 text-red-500" />
@@ -290,9 +275,11 @@ export default function CartDrawer() {
             </div>
 
             <Button className="w-full rounded-xl"
-              onClick={() =>
-                router.push(`/checkout`)
-              }
+              onClick={() => {
+                onCheckout();
+
+                router.push("/checkout");
+              }}
             >
               Checkout
             </Button>
@@ -307,7 +294,8 @@ export default function CartDrawer() {
               Clear Cart
             </Button>
           </div>
-        )}
-    </DrawerContent>
+        )
+      }
+    </DrawerContent >
   );
 }

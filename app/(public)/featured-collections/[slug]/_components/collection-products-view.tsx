@@ -18,7 +18,6 @@ export type Product = {
   name: string;
   slug: string;
   price: number;
-  // compare_price?: number;
   collection_product_images: ProductImage[];
 };
 

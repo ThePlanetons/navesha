@@ -1,31 +1,45 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-import { ShoppingCart, CircleUserRound } from "lucide-react";
-import PillTabs from "./pill-tabs ";
+import { CircleUserRound, ShoppingBag } from "lucide-react";
+
+import { Drawer, DrawerTrigger } from "@/components/ui/drawer";
 
 import { useCart } from "@/context/cart-provider";
-import { Drawer, DrawerTrigger } from "@/components/ui/drawer";
+
+import PillTabs from "./pill-tabs";
 import CartDrawer from "./cart-drawer";
 
 export default function Navbar({ scrolled }: { scrolled: boolean }) {
   const router = useRouter();
 
   const navItems = [
-    "Home",
-    "About",
-    "Features",
-    "Product",
-  ].map((item) => ({
-    label: item,
-    value: item.toLowerCase(),
-  }));
+    {
+      label: "Home",
+      value: "home",
+      href: "/",
+    },
+    {
+      label: "Products",
+      value: "products",
+    },
+    {
+      label: "Features",
+      value: "features",
+    },
+    {
+      label: "Contact",
+      value: "contact",
+    },
+  ];
 
   const [navActive, setNavActive] = useState("home");
 
   const { cartCount } = useCart();
+
+  const [cartOpen, setCartOpen] = useState(false);
 
   return (
     <div
@@ -58,7 +72,11 @@ export default function Navbar({ scrolled }: { scrolled: boolean }) {
 
         <div className="flex items-center gap-2">
           {/* Cart */}
-          <Drawer direction="right">
+          <Drawer
+            direction="right"
+            open={cartOpen}
+            onOpenChange={setCartOpen}
+          >
             <DrawerTrigger asChild>
               <button
                 className={`relative flex h-10 w-10 items-center justify-center rounded-full transition-all duration-300 ease-out
@@ -69,7 +87,7 @@ export default function Navbar({ scrolled }: { scrolled: boolean }) {
                   hover:scale-105 hover:bg-white/70 cursor-pointer
                 `}
               >
-                <ShoppingCart className="h-7 w-7 text-gray-700" />
+                <ShoppingBag className="h-6 w-6 text-gray-700" />
 
                 {cartCount > 0 && (
                   <span className="absolute -right-1 -top-1 flex min-h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 text-[12px] font-medium text-white shadow-sm">
@@ -79,7 +97,9 @@ export default function Navbar({ scrolled }: { scrolled: boolean }) {
               </button>
             </DrawerTrigger>
 
-            <CartDrawer />
+            <CartDrawer
+              onCheckout={() => setCartOpen(false)}
+            />
           </Drawer>
 
           {/* User */}

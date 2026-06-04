@@ -1,11 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+
 import { motion } from "framer-motion";
 
 export type NavItem = {
   label: string;
   value: string;
+  href?: string;
 };
 
 type Props = {
@@ -16,20 +19,23 @@ type Props = {
   id?: string;
 };
 
-export default function PillTabs({
-  items,
-  value,
-  onChange,
-  size = "md",
-  id
-}: Props) {
+export default function PillTabs({ items, value, onChange, size = "md", id }: Props) {
+  const router = useRouter();
+
   const [internalActive, setInternalActive] = useState(items[0]?.value);
 
   const active = value ?? internalActive;
 
-  const handleChange = (val: string) => {
-    if (value === undefined) setInternalActive(val);
-    onChange?.(val);
+  const handleChange = (item: NavItem) => {
+    if (value === undefined) {
+      setInternalActive(item.value);
+    }
+
+    onChange?.(item.value);
+
+    if (item.href) {
+      router.push(item.href);
+    }
   };
 
   return (
@@ -51,9 +57,9 @@ export default function PillTabs({
 type MagneticPillProps = {
   item: NavItem;
   active: string;
-  onClick: (val: string) => void;
+  onClick: (item: NavItem) => void;
   size: "sm" | "md" | "lg";
-  layoutId: string
+  layoutId: string;
 };
 
 function MagneticPill({ item, active, onClick, size, layoutId }: MagneticPillProps) {
@@ -65,15 +71,9 @@ function MagneticPill({ item, active, onClick, size, layoutId }: MagneticPillPro
     lg: "px-[18px] py-2",
   };
 
-  // const sizeStyles = {
-  //   sm: "px-2.5 py-1",
-  //   md: "px-3 py-1.5",
-  //   lg: "px-3.5 py-2",
-  // };
-
   return (
     <motion.button
-      onClick={() => onClick(item.value)}
+      onClick={() => onClick(item)}
       onMouseMove={(e) => {
         const rect = e.currentTarget.getBoundingClientRect();
         const x = Math.round((e.clientX - rect.left - rect.width / 2) * 0.2);
