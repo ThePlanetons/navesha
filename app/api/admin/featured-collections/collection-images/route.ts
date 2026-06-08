@@ -1,13 +1,23 @@
 // app/api/admin/collection-images/route.ts
 
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 import { supabaseAdmin } from "@/lib/supabase/admin";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const collectionId = request.nextUrl.searchParams.get("collection_id");
+
+  if (!collectionId) {
+    return NextResponse.json(
+      { error: "collection_id is required" },
+      { status: 400 }
+    );
+  }
+
   const { data, error } = await supabaseAdmin
     .from("collection_images")
     .select("*")
+    .eq("collection_id", collectionId)
     .order("sort_order", {
       ascending: true,
     });

@@ -7,8 +7,14 @@ export default async function Collections() {
     await Promise.all([
       supabaseAdmin
         .from("collection_categories")
-        .select("id, name, slug")
-        .order("name"),
+        .select(`
+          id,
+          name,
+          slug,
+          sort_order
+        `)
+        .eq("is_active", true)
+        .order("sort_order", { ascending: true, }),
 
       supabaseAdmin
         .from("collections")
@@ -16,6 +22,7 @@ export default async function Collections() {
           id,
           title,
           slug,
+          category_id,
           collection_images (
             id,
             image_url,
@@ -30,7 +37,7 @@ export default async function Collections() {
         categories?.map((item) => ({
           id: item.id,
           label: item.name,
-          value: item.slug,
+          value: item.id,
         })) ?? []
       }
       collections={collections ?? []}

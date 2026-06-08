@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -18,6 +18,7 @@ type Collection = {
   id: string;
   title: string;
   slug: string;
+  category_id: string;
   collection_images: {
     id: string;
     image_url: string;
@@ -31,9 +32,25 @@ type Props = {
 };
 
 export default function CollectionsView({ categories, collections }: Props) {
-  const [categoryActive, setCategoryActive] = useState(
-    categories[0]?.value ?? ""
-  );
+  const [categoryActive, setCategoryActive] = useState(categories[0]?.id ?? "");
+
+  const filteredCollections = categoryActive
+    ? collections.filter((collection) => collection.category_id === categoryActive)
+    : collections;
+
+  useEffect(() => {
+    console.log("Active Category:", categoryActive);
+
+    console.log("Collections:", collections);
+
+    console.log(
+      "Collection Category IDs:",
+      collections.map((collection) => ({
+        title: collection.title,
+        category_id: collection.category_id,
+      }))
+    );
+  }, [categoryActive, collections]);
 
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -81,7 +98,7 @@ export default function CollectionsView({ categories, collections }: Props) {
         )}
 
         <div className="mt-6 flex gap-5 overflow-x-auto pb-2 no-scrollbar xl:grid xl:grid-cols-3 xl:overflow-visible">
-          {collections.map((collection, i) => {
+          {filteredCollections.map((collection, i) => {
             const thumbnailImage = collection.collection_images?.find(
               (image) => image.image_role === "thumbnail"
             )?.image_url;
