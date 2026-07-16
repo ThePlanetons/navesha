@@ -73,7 +73,7 @@ export default function ProductView({ product }: { product: Product }) {
             </p>
           )}
 
-          <div className="flex gap-3">
+          {/* <div className="flex gap-3">
             <Button
               size="lg"
               className="rounded-xl"
@@ -87,7 +87,7 @@ export default function ProductView({ product }: { product: Product }) {
             >
               Add to Cart
             </Button>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>
