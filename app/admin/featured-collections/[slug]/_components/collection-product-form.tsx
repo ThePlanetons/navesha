@@ -22,7 +22,6 @@ export type CollectionProduct = {
   name: string;
   slug: string;
   description: string | null;
-  price: number;
   is_active: boolean;
 };
 
@@ -40,16 +39,7 @@ const formSchema = z.object({
       "Only lowercase letters, numbers and hyphens allowed"
     ),
 
-  description:
-    z.string().optional(),
-
-  price: z.coerce
-    .number()
-    .min(
-      1,
-      "Price must be greater than 0"
-    ),
-
+  description: z.string().optional(),
   is_active: z.boolean(),
 });
 
@@ -63,13 +53,8 @@ type CollectionProductFormProps = {
   onSuccess?: () => void;
 };
 
-export default function CollectionProductForm({
-  collectionId,
-  initialData,
-  onSuccess,
-}: CollectionProductFormProps) {
-  const isEdit =
-    !!initialData;
+export default function CollectionProductForm({ collectionId, initialData, onSuccess, }: CollectionProductFormProps) {
+  const isEdit = !!initialData;
 
   const {
     register,
@@ -86,33 +71,16 @@ export default function CollectionProductForm({
       zodResolver(formSchema),
 
     defaultValues: {
-      name:
-        initialData?.name ||
-        "",
-
-      slug:
-        initialData?.slug ||
-        "",
-
-      description:
-        initialData?.description ||
-        "",
-
-      price:
-        initialData?.price ||
-        0,
-
-      is_active:
-        initialData?.is_active ??
-        true,
+      name: initialData?.name || "",
+      slug: initialData?.slug || "",
+      description: initialData?.description || "",
+      is_active: initialData?.is_active ?? true,
     },
   });
 
   const isActive = watch("is_active");
 
-  const generateSlug = (
-    value: string
-  ) => {
+  const generateSlug = (value: string) => {
     return value
       .toLowerCase()
       .trim()
@@ -126,38 +94,30 @@ export default function CollectionProductForm({
       );
   };
 
-  const onSubmit = async (
-    values: FormValues
-  ) => {
+  const onSubmit = async (values: FormValues) => {
     try {
-      const response =
-        await fetch(
-          isEdit
-            ? `/api/admin/collections/collection-products/${initialData.id}`
-            : "/api/admin/collections/collection-products",
-          {
-            method: isEdit
-              ? "PUT"
-              : "POST",
+      const response = await fetch(
+        isEdit
+          ? `/api/admin/featured-collections/collection-products/${initialData.id}`
+          : "/api/admin/featured-collections/collection-products",
+        {
+          method: isEdit ? "PUT" : "POST",
 
-            headers: {
-              "Content-Type": "application/json",
-            },
+          headers: {
+            "Content-Type": "application/json",
+          },
 
-            body: JSON.stringify({
-              ...values,
-              collection_id:
-                collectionId,
-            }),
-          }
-        );
+          body: JSON.stringify({
+            ...values,
+            collection_id: collectionId,
+          }),
+        }
+      );
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(
-          data.error
-        );
+        throw new Error(data.error);
       }
 
       toast.success(data.message);
@@ -169,24 +129,14 @@ export default function CollectionProductForm({
       onSuccess?.();
     } catch (error) {
       toast.error(
-        error instanceof Error
-          ? error.message
-          : "Something went wrong"
+        error instanceof Error ? error.message : "Something went wrong"
       );
     }
   };
 
   return (
-    <form
-      onSubmit={handleSubmit(
-        onSubmit
-      )}
-    >
-      <FieldSet
-        className="
-          space-y-5 gap-0
-        "
-      >
+    <form onSubmit={handleSubmit(onSubmit)}>
+      <FieldSet className="space-y-5 gap-0">
         <FieldGroup>
           {/* Name */}
           <Field>
@@ -197,24 +147,13 @@ export default function CollectionProductForm({
             <FieldContent>
               <Input
                 placeholder="Spider Man with MJ"
-                {...register(
-                  "name"
-                )}
+                {...register("name")}
                 onChange={(e) => {
-                  const value =
-                    e.target.value;
+                  const value = e.target.value;
 
-                  setValue(
-                    "name",
-                    value
-                  );
+                  setValue("name", value);
 
-                  setValue(
-                    "slug",
-                    generateSlug(
-                      value
-                    )
-                  );
+                  setValue("slug", generateSlug(value));
                 }}
               />
 
@@ -225,10 +164,7 @@ export default function CollectionProductForm({
 
               {errors.name && (
                 <FieldError>
-                  {
-                    errors.name
-                      .message
-                  }
+                  {errors.name.message}
                 </FieldError>
               )}
             </FieldContent>
@@ -243,9 +179,7 @@ export default function CollectionProductForm({
             <FieldContent>
               <Input
                 placeholder="spider-man-with-mj"
-                {...register(
-                  "slug"
-                )}
+                {...register("slug")}
               />
 
               <FieldDescription className="!mt-0.5">
@@ -255,10 +189,7 @@ export default function CollectionProductForm({
 
               {errors.slug && (
                 <FieldError>
-                  {
-                    errors.slug
-                      .message
-                  }
+                  {errors.slug.message}
                 </FieldError>
               )}
             </FieldContent>
@@ -274,9 +205,7 @@ export default function CollectionProductForm({
               <Textarea
                 rows={5}
                 placeholder="Write product description..."
-                {...register(
-                  "description"
-                )}
+                {...register("description")}
               />
 
               <FieldDescription className="!mt-0.5">
@@ -286,42 +215,7 @@ export default function CollectionProductForm({
 
               {errors.description && (
                 <FieldError>
-                  {
-                    errors
-                      .description
-                      .message
-                  }
-                </FieldError>
-              )}
-            </FieldContent>
-          </Field>
-
-          {/* Price */}
-          <Field>
-            <FieldLabel>
-              Price
-            </FieldLabel>
-
-            <FieldContent>
-              <Input
-                type="number"
-                placeholder="499"
-                {...register(
-                  "price"
-                )}
-              />
-
-              <FieldDescription className="!mt-0.5">
-                Product selling
-                price
-              </FieldDescription>
-
-              {errors.price && (
-                <FieldError>
-                  {
-                    errors.price
-                      .message
-                  }
+                  {errors.description.message}
                 </FieldError>
               )}
             </FieldContent>
@@ -336,22 +230,15 @@ export default function CollectionProductForm({
                 </FieldTitle>
 
                 <FieldDescription className="!mt-0.5">
-                  Enable or
-                  disable this
-                  product
+                  Enable or disable this product
                 </FieldDescription>
               </FieldContent>
 
               <Switch
                 id="is_active"
                 checked={isActive}
-                onCheckedChange={(
-                  checked
-                ) =>
-                  setValue(
-                    "is_active",
-                    checked
-                  )
+                onCheckedChange={(checked) =>
+                  setValue("is_active", checked)
                 }
               />
             </Field>
@@ -360,31 +247,16 @@ export default function CollectionProductForm({
 
         {/* Submit */}
         <div className="flex justify-end">
-          <Button
-            type="submit"
-            disabled={
-              isSubmitting
-            }
-            className="rounded-xl"
-          >
+          <Button type="submit" disabled={isSubmitting} className="rounded-xl">
             {isSubmitting ? (
               <>
-                <Loader2
-                  className="
-                    mr-2 h-4 w-4
-                    animate-spin
-                  "
-                />
+                <Loader2 className="h-4 w-4 animate-spin" />
 
-                {isEdit
-                  ? "Updating..."
-                  : "Creating..."}
+                {isEdit ? "Updating..." : "Creating..."}
               </>
             ) : (
               <>
-                {isEdit
-                  ? "Update Product"
-                  : "Create Product"}
+                {isEdit ? "Update Product" : "Create Product"}
               </>
             )}
           </Button>

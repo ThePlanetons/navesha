@@ -14,10 +14,11 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, } from
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 
-import HeroSlideForm from "./hero-slide-form";
 import { toast } from "sonner";
 
-type HeroSlide = {
+import HeroSlideForm from "./hero-slide-form";
+
+export type HeroSlide = {
   id: string;
   image_url: string;
   is_active: boolean;
@@ -50,7 +51,7 @@ export default function HeroSectionsPage() {
 
       setSlides(data || []);
     } catch (error) {
-      console.error(error);
+      toast.error(error instanceof Error ? error.message : "Something went wrong");
     } finally {
       setLoading(false);
     }
@@ -69,22 +70,19 @@ export default function HeroSectionsPage() {
         throw new Error(result.error);
       }
 
-      toast.success(result.message);
+      setSlides((prev) =>
+        prev.filter((slide) => slide.id !== id)
+      );
 
-      fetchSlides();
+      toast.success(result.message);
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Something went wrong");
     }
   };
 
-  const nextSortOrder =
-    slides.length > 0
-      ? Math.max(
-        ...slides.map(
-          (slide) => slide.sort_order
-        )
-      ) + 1
-      : 1;
+  const nextSortOrder = slides.length > 0
+    ? Math.max(...slides.map((slide) => slide.sort_order)) + 1
+    : 1;
 
   return (
     <div className="space-y-6">
@@ -102,7 +100,7 @@ export default function HeroSectionsPage() {
 
         <div className="flex items-center gap-3">
           {/* Add Slide */}
-          <Dialog>
+          <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
               <Button className="rounded-xl">
                 <Plus className="h-4 w-4" />
@@ -122,11 +120,15 @@ export default function HeroSectionsPage() {
 
               <div className="flex-1 overflow-y-auto p-4">
                 <HeroSlideForm
-                  defaultSortOrder={
-                    nextSortOrder
-                  }
-                  onSuccess={() => {
-                    fetchSlides();
+                  defaultSortOrder={nextSortOrder}
+                  onSuccess={(newSlide) => {
+                    setSlides((prev) =>
+                      [...prev, newSlide].sort(
+                        (a, b) => a.sort_order - b.sort_order
+                      )
+                    );
+
+                    setOpen(false);
                   }}
                 />
               </div>
@@ -175,11 +177,15 @@ export default function HeroSectionsPage() {
 
                 <div className="flex-1 overflow-y-auto p-4">
                   <HeroSlideForm
-                    defaultSortOrder={
-                      nextSortOrder
-                    }
-                    onSuccess={() => {
-                      fetchSlides();
+                    defaultSortOrder={nextSortOrder}
+                    onSuccess={(newSlide) => {
+                      setSlides((prev) =>
+                        [...prev, newSlide].sort(
+                          (a, b) => a.sort_order - b.sort_order
+                        )
+                      );
+
+                      setOpen(false);
                     }}
                   />
                 </div>
@@ -193,7 +199,7 @@ export default function HeroSectionsPage() {
       {loading && (
         <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
           {Array.from({ length: 6 }).map((_, index) => (
-            <Card className="rounded-3xl py-0 gap-0"
+            <Card className="rounded-3xl py-0 gap-0 border-dashed"
               key={index}
             >
               <CardContent className="space-y-3 p-4">
@@ -215,7 +221,7 @@ export default function HeroSectionsPage() {
         <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
           {slides.map(
             (slide) => (
-              <Card className="rounded-3xl py-0 gap-0"
+              <Card className="rounded-3xl py-0 gap-0 border-dashed"
                 key={slide.id}
               >
                 <div className="relative overflow-hidden rounded-t-3xl">
@@ -248,16 +254,10 @@ export default function HeroSectionsPage() {
 
                     <div className="absolute inset-x-0 top-0 z-10 flex justify-start p-4">
                       <Badge
-                        variant={
-                          slide.is_active
-                            ? "default"
-                            : "secondary"
-                        }
+                        variant={slide.is_active ? "default" : "secondary"}
                         className="rounded-full shadow-md"
                       >
-                        {slide.is_active
-                          ? "Active"
-                          : "Inactive"}
+                        {slide.is_active ? "Active" : "Inactive"}
                       </Badge>
                     </div>
                   </div>
@@ -276,10 +276,7 @@ export default function HeroSectionsPage() {
                     <div className="flex items-center gap-2">
                       {/* Edit */}
                       <Dialog
-                        open={
-                          open &&
-                          editData?.id === slide.id
-                        }
+                        open={open && editData?.id === slide.id}
                         onOpenChange={(value) => {
                           setOpen(value);
 
@@ -293,9 +290,7 @@ export default function HeroSectionsPage() {
                             size="icon"
                             variant="outline"
                             className="rounded-xl"
-                            onClick={() => {
-                              setEditData(slide);
-                            }}
+                            onClick={() => { setEditData(slide); }}
                           >
                             <Pencil className="h-4 w-4" />
                           </Button>
@@ -314,8 +309,14 @@ export default function HeroSectionsPage() {
                             {editData && (
                               <HeroSlideForm
                                 initialData={editData}
-                                onSuccess={() => {
-                                  fetchSlides();
+                                onSuccess={(updatedSlide) => {
+                                  setSlides((prev) =>
+                                    prev.map((slide) =>
+                                      slide.id === updatedSlide.id
+                                        ? updatedSlide
+                                        : slide
+                                    )
+                                  );
 
                                   setOpen(false);
 
@@ -330,11 +331,7 @@ export default function HeroSectionsPage() {
                       {/* Delete */}
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
-                          <Button
-                            size="icon"
-                            variant="destructive"
-                            className="rounded-xl"
-                          >
+                          <Button size="icon" variant="destructive" className="rounded-xl">
                             <Trash2 className="h-4 w-4" />
                           </Button>
                         </AlertDialogTrigger>
@@ -354,9 +351,7 @@ export default function HeroSectionsPage() {
 
                           <AlertDialogFooter>
                             <AlertDialogCancel variant="outline">Cancel</AlertDialogCancel>
-                            <AlertDialogAction variant="destructive"
-                              onClick={() => handleDelete(slide.id)}
-                            >
+                            <AlertDialogAction variant="destructive" onClick={() => handleDelete(slide.id)}>
                               Delete
                             </AlertDialogAction>
                           </AlertDialogFooter>

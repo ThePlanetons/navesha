@@ -1,4 +1,4 @@
-// app/api/admin/collections/collection-products/collection-product-images/route.ts
+// app/api/admin/featured-collections/collection-products/collection-product-images/route.ts
 
 import { NextRequest, NextResponse } from "next/server";
 

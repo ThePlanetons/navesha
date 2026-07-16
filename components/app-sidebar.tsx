@@ -2,20 +2,14 @@
 
 import * as React from "react"
 
+import { GalleryVerticalEndIcon, AudioLinesIcon, BookOpenIcon, Settings2Icon, FrameIcon, PieChartIcon, MapIcon, ShoppingBagIcon, PanelsTopLeftIcon } from "lucide-react"
+
 import { NavMain } from "@/components/nav-main"
 import { NavProjects } from "@/components/nav-projects"
 import { NavUser } from "@/components/nav-user"
 import { TeamSwitcher } from "@/components/team-switcher"
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarHeader,
-  SidebarRail,
-} from "@/components/ui/sidebar"
-import { GalleryVerticalEndIcon, AudioLinesIcon, TerminalIcon, TerminalSquareIcon, BotIcon, BookOpenIcon, Settings2Icon, FrameIcon, PieChartIcon, MapIcon } from "lucide-react"
+import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarRail } from "@/components/ui/sidebar"
 
-// This is sample data.
 const data = {
   user: {
     name: "shadcn",
@@ -26,34 +20,24 @@ const data = {
     {
       name: "Acme Inc",
       logo: (
-        <GalleryVerticalEndIcon
-        />
+        <GalleryVerticalEndIcon />
       ),
       plan: "Enterprise",
     },
     {
       name: "Acme Corp.",
       logo: (
-        <AudioLinesIcon
-        />
+        <AudioLinesIcon />
       ),
       plan: "Startup",
-    },
-    {
-      name: "Evil Corp.",
-      logo: (
-        <TerminalIcon
-        />
-      ),
-      plan: "Free",
     },
   ],
   navMain: [
     {
-      title: "Landing Page",
+      title: "Public Page",
       url: "#",
       icon: (
-        <TerminalSquareIcon />
+        <PanelsTopLeftIcon />
       ),
       isActive: true,
       items: [
@@ -68,24 +52,24 @@ const data = {
       ],
     },
     {
-      title: "Models",
+      title: "Orders",
       url: "#",
       icon: (
-        <BotIcon
-        />
+        <ShoppingBagIcon />
       ),
+      isActive: true,
       items: [
         {
-          title: "Genesis",
-          url: "#",
+          title: "All Orders",
+          url: "/admin/orders",
         },
         {
-          title: "Explorer",
-          url: "#",
+          title: "Pending Orders",
+          url: "/admin/orders/pending",
         },
         {
-          title: "Quantum",
-          url: "#",
+          title: "Completed Orders",
+          url: "/admin/orders/completed",
         },
       ],
     },
@@ -93,8 +77,7 @@ const data = {
       title: "Documentation",
       url: "#",
       icon: (
-        <BookOpenIcon
-        />
+        <BookOpenIcon />
       ),
       items: [
         {
@@ -119,8 +102,7 @@ const data = {
       title: "Settings",
       url: "#",
       icon: (
-        <Settings2Icon
-        />
+        <Settings2Icon />
       ),
       items: [
         {
@@ -147,24 +129,21 @@ const data = {
       name: "Design Engineering",
       url: "#",
       icon: (
-        <FrameIcon
-        />
+        <FrameIcon />
       ),
     },
     {
       name: "Sales & Marketing",
       url: "#",
       icon: (
-        <PieChartIcon
-        />
+        <PieChartIcon />
       ),
     },
     {
       name: "Travel",
       url: "#",
       icon: (
-        <MapIcon
-        />
+        <MapIcon />
       ),
     },
   ],

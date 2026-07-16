@@ -28,6 +28,10 @@ export type PopularCollection = {
   slug: string;
   is_active: boolean;
   sort_order: number;
+
+  collection_categories?: {
+    name: string;
+  };
 };
 
 const formSchema = z.object({
@@ -91,7 +95,7 @@ export default function CollectionForm({ initialData, onSuccess, }: CollectionFo
   const fetchCategories = async () => {
     try {
       const response = await fetch(
-        "/api/admin/collections/collection-categories"
+        "/api/admin/featured-collections/collection-categories"
       );
 
       const data = await response.json();
@@ -121,8 +125,8 @@ export default function CollectionForm({ initialData, onSuccess, }: CollectionFo
     try {
       const response = await fetch(
         isEdit
-          ? `/api/admin/collections/popular-collections/${initialData.id}`
-          : "/api/admin/collections/popular-collections",
+          ? `/api/admin/featured-collections/${initialData.id}`
+          : "/api/admin/featured-collections",
         {
           method: isEdit
             ? "PUT"
@@ -156,7 +160,7 @@ export default function CollectionForm({ initialData, onSuccess, }: CollectionFo
     <form
       onSubmit={handleSubmit(onSubmit)}
     >
-      <FieldSet className="space-y-5 gap-0">
+      <FieldSet className="space-y-4 gap-0">
         <FieldGroup>
           {/* Category */}
           <Field>
@@ -308,24 +312,16 @@ export default function CollectionForm({ initialData, onSuccess, }: CollectionFo
         </FieldGroup>
 
         <div className="flex justify-end">
-          <Button
-            type="submit"
-            disabled={isSubmitting}
-            className="rounded-xl"
-          >
+          <Button type="submit" disabled={isSubmitting} className="rounded-xl">
             {isSubmitting ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                <Loader2 className="h-4 w-4 animate-spin" />
 
-                {isEdit
-                  ? "Updating..."
-                  : "Creating..."}
+                {isEdit ? "Updating..." : "Creating..."}
               </>
             ) : (
               <>
-                {isEdit
-                  ? "Update Collection"
-                  : "Create Collection"}
+                {isEdit ? "Update Collection" : "Create Collection"}
               </>
             )}
           </Button>

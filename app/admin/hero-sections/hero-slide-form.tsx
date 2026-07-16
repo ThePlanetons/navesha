@@ -17,6 +17,10 @@ import { Field, FieldContent, FieldDescription, FieldError, FieldGroup, FieldLab
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 
+import { toast } from "sonner";
+
+import { HeroSlide } from "./page";
+
 const formSchema = z.object({
   image_url: z.string().min(1, "Image is required"),
   sort_order: z.coerce.number().min(1),
@@ -32,17 +36,11 @@ type HeroSlideFormProps = {
     sort_order: number;
     is_active: boolean;
   };
-
   defaultSortOrder?: number;
-
-  onSuccess?: () => void;
+  onSuccess?: (slide: HeroSlide) => void;
 };
 
-export default function HeroSlideForm({
-  initialData,
-  defaultSortOrder = 1,
-  onSuccess,
-}: HeroSlideFormProps) {
+export default function HeroSlideForm({ initialData, defaultSortOrder = 1, onSuccess }: HeroSlideFormProps) {
   const isEdit = !!initialData;
 
   const [uploading, setUploading] = useState(false);
@@ -52,29 +50,13 @@ export default function HeroSlideForm({
     handleSubmit,
     setValue,
     watch,
-    reset,
-    formState: {
-      errors,
-      isSubmitting,
-    },
+    formState: { errors, isSubmitting }
   } = useForm<FormValues>({
-    resolver:
-      zodResolver(
-        formSchema
-      ),
-
+    resolver: zodResolver(formSchema),
     defaultValues: {
-      image_url:
-        initialData?.image_url ||
-        "",
-
-      sort_order:
-        initialData?.sort_order ??
-        defaultSortOrder,
-
-      is_active:
-        initialData?.is_active ??
-        true,
+      image_url: initialData?.image_url || "",
+      sort_order: initialData?.sort_order ?? defaultSortOrder,
+      is_active: initialData?.is_active ?? true,
     },
   });
 
@@ -82,9 +64,7 @@ export default function HeroSlideForm({
 
   const isActive = watch("is_active");
 
-  const uploadImage = async (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  const uploadImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
     try {
       const file = e.target.files?.[0];
 
@@ -92,26 +72,22 @@ export default function HeroSlideForm({
 
       setUploading(true);
 
-      const formData =
-        new FormData();
+      const formData = new FormData();
 
       formData.append("file", file);
 
-      const response =
-        await fetch(
-          "/api/admin/hero-slides/upload",
-          {
-            method: "POST",
-            body: formData,
-          }
-        );
+      const response = await fetch(
+        "/api/admin/hero-slides/upload",
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(
-          data.error
-        );
+        throw new Error(data.error);
       }
 
       setValue(
@@ -122,59 +98,46 @@ export default function HeroSlideForm({
         }
       );
     } catch (error) {
-      console.error(error);
+      toast.error(error instanceof Error ? error.message : "Something went wrong");
     } finally {
       setUploading(false);
     }
   };
 
-  const onSubmit = async (
-    values: FormValues
-  ) => {
+  const onSubmit = async (values: FormValues) => {
     try {
-      const response =
-        await fetch(
-          isEdit
-            ? `/api/admin/hero-slides/${initialData?.id}`
-            : "/api/admin/hero-slides",
-          {
-            method: isEdit ? "PUT" : "POST",
+      const response = await fetch(
+        isEdit
+          ? `/api/admin/hero-slides/${initialData?.id}`
+          : "/api/admin/hero-slides",
+        {
+          method: isEdit ? "PUT" : "POST",
 
-            headers: {
-              "Content-Type": "application/json",
-            },
+          headers: {
+            "Content-Type": "application/json",
+          },
 
-            body: JSON.stringify(
-              values
-            ),
-          }
-        );
+          body: JSON.stringify(values),
+        }
+      );
 
-      const data = await response.json();
+      const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(
-          data.error
-        );
+        throw new Error(result.error);
       }
 
-      onSuccess?.();
+      onSuccess?.(result);
 
-      if (!isEdit) {
-        reset({
-          image_url: "",
-          sort_order: defaultSortOrder,
-          is_active: true,
-        });
-      }
+      toast.success(isEdit ? 'Slide updated successfully' : 'Slide created successfully');
     } catch (error) {
-      console.error(error);
+      toast.error(error instanceof Error ? error.message : "Something went wrong");
     }
   };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <FieldSet className="space-y-5 gap-0">
+      <FieldSet className="space-y-4 gap-0">
         <FieldGroup>
           {/* Upload */}
           <Field>
@@ -283,18 +246,12 @@ export default function HeroSlideForm({
         </FieldGroup>
 
         <div className="flex justify-end">
-          <Button
-            type="submit"
-            disabled={
-              isSubmitting ||
-              uploading
-            }
-            className="rounded-xl"
-          >
+          <Button type="submit" disabled={isSubmitting || uploading} className="rounded-xl">
             {isSubmitting ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Saving...
+                <Loader2 className="h-4 w-4 animate-spin" />
+
+                {isEdit ? "Updating..." : "Creating..."}
               </>
             ) : (
               <>

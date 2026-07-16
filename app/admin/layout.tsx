@@ -26,7 +26,7 @@ export default function AdminLayout({
               className="mr-2 data-[orientation=vertical]:h-4"
             />
 
-            <Suspense fallback={null}>
+            <Suspense>
               <AdminBreadcrumbs />
             </Suspense>
           </div>
