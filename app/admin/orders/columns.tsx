@@ -67,7 +67,7 @@ export const columns: ColumnDef<Order>[] = [
   },
   {
     accessorKey: "created_at",
-    header: "Created At",
-    cell: ({ row }) => new Date(row.original.created_at).toLocaleDateString(),
+    header: "Created",
+    cell: ({ row }) => new Date(row.original.created_at).toLocaleString("en-IN"),
   },
 ];

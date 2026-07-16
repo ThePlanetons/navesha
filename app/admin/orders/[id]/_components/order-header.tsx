@@ -90,7 +90,7 @@ export function OrderHeader({
               </p>
 
               <p className="font-medium">
-                {new Date(order.created_at).toLocaleString()}
+                {new Date(order.created_at).toLocaleString("en-IN")}
               </p>
             </div>
 
