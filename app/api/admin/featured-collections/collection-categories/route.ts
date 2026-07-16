@@ -6,7 +6,7 @@ export async function GET() {
   const { data, error } = await supabaseAdmin
     .from("collection_categories")
     .select("*")
-    .order("sort_order", { ascending: true, });
+    .order("sort_order", { ascending: true });
 
   if (error) {
     return NextResponse.json(

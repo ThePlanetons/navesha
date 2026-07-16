@@ -18,9 +18,7 @@ export async function GET(request: NextRequest) {
     .from("collection_images")
     .select("*")
     .eq("collection_id", collectionId)
-    .order("sort_order", {
-      ascending: true,
-    });
+    .order("sort_order", { ascending: true });
 
   if (error) {
     return NextResponse.json(

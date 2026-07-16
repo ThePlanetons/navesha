@@ -54,7 +54,6 @@ export async function PUT(request: NextRequest, context: { params: Params; }) {
       name,
       slug,
       description,
-      price,
       is_active,
     } = body;
 
@@ -66,7 +65,6 @@ export async function PUT(request: NextRequest, context: { params: Params; }) {
         name,
         slug,
         description,
-        price,
         is_active,
       })
       .eq("id", id)

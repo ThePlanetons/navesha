@@ -18,7 +18,6 @@ export async function GET(request: NextRequest) {
         id,
         sku,
         name,
-        price,
         collection_product_images (
           id,
           image_url,

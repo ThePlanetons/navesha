@@ -17,7 +17,13 @@ export type Product = {
   sku: string;
   name: string;
   slug: string;
+  description: string;
   price: number;
+  collections: {
+    id: string;
+    title: string;
+    slug: string;
+  }
   collection_product_images: ProductImage[];
 };
 
@@ -28,9 +34,7 @@ type Collection = {
   collection_products: Product[];
 };
 
-export default function CollectionProductsView({ slug, }: {
-  slug: string;
-}) {
+export default function CollectionProductsView({ slug }: { slug: string }) {
   const [collection, setCollection] = useState<Collection | null>(null);
 
   const [sortBy, setSortBy] = useState("featured");
@@ -100,7 +104,7 @@ export default function CollectionProductsView({ slug, }: {
   }
 
   return (
-    <div className="flex flex-col px-3 sm:px-4 md:px-6 lg:px-8">
+    <div className="flex flex-col px-3 pb-6 sm:px-4 md:px-6 lg:px-8">
       {/* Header */}
       <div className="flex flex-row items-center justify-between mb-4.5">
         <div className="flex flex-col gap-2">
@@ -145,6 +149,7 @@ export default function CollectionProductsView({ slug, }: {
             <ProductCard
               key={product.id}
               product={product}
+              collectionSlug={slug}
             />
           )
         )}

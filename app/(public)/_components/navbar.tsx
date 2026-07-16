@@ -1,13 +1,15 @@
 "use client";
 
 import { useState } from "react";
+
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 import { CircleUserRound, ShoppingBag } from "lucide-react";
 
 import { Drawer, DrawerTrigger } from "@/components/ui/drawer";
 
-import { useCart } from "@/context/cart-provider";
+import { useCart } from "@/contexts/cart-provider";
 
 import PillTabs from "./pill-tabs";
 import CartDrawer from "./cart-drawer";
@@ -54,8 +56,15 @@ export default function Navbar({ scrolled }: { scrolled: boolean }) {
         }
       >
         {/* Logo */}
-        <div className="font-semibold text-lg tracking-wide uppercase">
-          Navesha
+        <div className="flex items-center">
+          <Image
+            src="/logo/navesha_logo_transparent.png"
+            alt="Navesha"
+            width={140}
+            height={40}
+            priority
+            className="h-8 w-auto md:h-11"
+          />
         </div>
 
         {/* Nav Items */}

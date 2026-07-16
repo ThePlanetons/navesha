@@ -9,7 +9,7 @@ export async function GET() {
     const { data, error } = await supabaseAdmin
       .from("collections")
       .select("*, collection_categories(name)")
-      .order("sort_order", { ascending: true, });
+      .order("sort_order", { ascending: true });
 
     if (error) {
       throw new Error(error.message);
