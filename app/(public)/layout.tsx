@@ -12,7 +12,7 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
           <NavbarWrapper />
 
           <main>
-            <div className="pt-[5.5rem]">
+            <div className="pt-[4rem] md:pt-[5.5rem]">
               {children}
             </div>
           </main>

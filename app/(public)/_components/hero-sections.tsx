@@ -25,13 +25,13 @@ export default async function HeroSection() {
     <div className="flex justify-center">
       <div className="w-full bg-white">
         {/* Hero Section */}
-        <div className="mx-auto max-w-[90rem] px-6 pt-10 pb-8 text-center lg:px-10 lg:pt-14">
+        <div className="mx-auto max-w-[90rem] px-6 pt-5 text-center">
           <div className="mb-5 inline-flex items-center rounded-full border border-red-100 bg-red-50 px-4 py-1.5 text-sm font-medium text-red-500">
             ✨ Premium Posters • Crafted for Every Space
           </div>
 
-          <h1 className="mx-auto max-w-6xl text-lg font-semibold leading-tight md:text-5xl lg:text-6xl">
-            The Art of Human Expression, Uncover
+          <h1 className="mx-auto max-w-6xl text-xl font-semibold leading-tight md:text-5xl lg:text-6xl">
+            <span className="inline-block mb-2.5 md:mb-2">The Art of Human Expression, Uncover</span>
             <br />
             <span className="italic font-normal">
               The Stories
@@ -46,14 +46,14 @@ export default async function HeroSection() {
             into a statement piece that reflects your passion and personality.
           </p> */}
 
-          <div className="mt-8 flex justify-center">
+          <div className="my-5 md:my-6 flex justify-center">
             <PillTabsHero />
           </div>
 
           {/* Highlights */}
-          <div className="mx-auto mt-10 grid max-w-5xl grid-cols-2 gap-8 md:grid-cols-4">
+          <div className="mx-6 md:mx-auto pt-1.5 md:pt-3 grid max-w-5xl grid-cols-2 md:grid-cols-4 gap-y-4">
             <div>
-              <p className="text-3xl font-bold text-red-500">
+              <p className="text-xl md:text-3xl font-bold text-red-500">
                 500+
               </p>
 
@@ -63,7 +63,7 @@ export default async function HeroSection() {
             </div>
 
             <div>
-              <p className="text-3xl font-bold text-red-500">
+              <p className="text-xl md:text-3xl font-bold text-red-500">
                 Premium
               </p>
 
@@ -73,7 +73,7 @@ export default async function HeroSection() {
             </div>
 
             <div>
-              <p className="text-3xl font-bold text-red-500">
+              <p className="text-xl md:text-3xl font-bold text-red-500">
                 Fast
               </p>
 
@@ -83,7 +83,7 @@ export default async function HeroSection() {
             </div>
 
             <div>
-              <p className="text-3xl font-bold text-red-500">
+              <p className="text-xl md:text-3xl font-bold text-red-500">
                 100%
               </p>
 

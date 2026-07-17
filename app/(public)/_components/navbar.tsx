@@ -45,7 +45,7 @@ export default function Navbar({ scrolled }: { scrolled: boolean }) {
 
   return (
     <div
-      className="w-full flex justify-center transition-all duration-500 transform py-3"
+      className="w-full flex justify-center transition-all duration-500 transform py-2.5 md:py-3"
     >
       <div
         className={`flex items-center justify-between px-3 sm:px-4 md:px-6 lg:px-8 py-3 transition-all duration-500
@@ -56,14 +56,13 @@ export default function Navbar({ scrolled }: { scrolled: boolean }) {
         }
       >
         {/* Logo */}
-        <div className="flex items-center">
+        <div className="relative h-8 w-32 md:h-11 md:w-44">
           <Image
             src="/logo/navesha_logo_transparent.png"
             alt="Navesha"
-            width={140}
-            height={40}
+            fill
             priority
-            className="h-8 w-auto md:h-11"
+            className="object-contain"
           />
         </div>
 

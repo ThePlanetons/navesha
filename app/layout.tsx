@@ -13,7 +13,7 @@ const defaultUrl = process.env.VERCEL_URL
 export const metadata: Metadata = {
   metadataBase: new URL(defaultUrl),
   title: "Navesha",
-  description: "The fastest way to build apps with Next.js and Supabase",
+  description: "Discover premium posters and timeless wall art that transform your space with creativity, inspiration, and style.",
 };
 
 const geistSans = Geist({
