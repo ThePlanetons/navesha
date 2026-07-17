@@ -241,17 +241,7 @@ export default function CollectionProductsPage({ slug, }: Props) {
                   </div>
 
                   {/* Footer */}
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-muted-foreground text-xs">
-                        Price
-                      </p>
-
-                      <p className="text-lg font-semibold">
-                        ₹{product.price}
-                      </p>
-                    </div>
-
+                  <div className="flex items-center justify-end">
                     <div className="flex items-center gap-2" onClick={(event) => event.stopPropagation()}>
                       {/* Edit Product */}
                       <Dialog>

@@ -36,7 +36,6 @@ export async function POST(request: NextRequest) {
       name,
       slug,
       description,
-      price,
       is_active,
     } = body;
 
@@ -76,7 +75,6 @@ export async function POST(request: NextRequest) {
         name,
         slug,
         description,
-        price,
         is_active,
       })
       .select()

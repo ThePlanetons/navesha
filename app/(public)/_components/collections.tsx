@@ -14,7 +14,7 @@ export default async function Collections() {
           sort_order
         `)
         .eq("is_active", true)
-        .order("sort_order", { ascending: true, }),
+        .order("sort_order", { ascending: true }),
 
       supabaseAdmin
         .from("collections")

@@ -22,7 +22,6 @@ export type CollectionProduct = {
   name: string;
   slug: string;
   description: string | null;
-  price: number;
   is_active: boolean;
 };
 
@@ -40,16 +39,7 @@ const formSchema = z.object({
       "Only lowercase letters, numbers and hyphens allowed"
     ),
 
-  description:
-    z.string().optional(),
-
-  price: z.coerce
-    .number()
-    .min(
-      1,
-      "Price must be greater than 0"
-    ),
-
+  description: z.string().optional(),
   is_active: z.boolean(),
 });
 
@@ -84,7 +74,6 @@ export default function CollectionProductForm({ collectionId, initialData, onSuc
       name: initialData?.name || "",
       slug: initialData?.slug || "",
       description: initialData?.description || "",
-      price: initialData?.price || 0,
       is_active: initialData?.is_active ?? true,
     },
   });
@@ -232,32 +221,6 @@ export default function CollectionProductForm({ collectionId, initialData, onSuc
             </FieldContent>
           </Field>
 
-          {/* Price */}
-          <Field>
-            <FieldLabel>
-              Price
-            </FieldLabel>
-
-            <FieldContent>
-              <Input
-                type="number"
-                placeholder="499"
-                {...register("price")}
-              />
-
-              <FieldDescription className="!mt-0.5">
-                Product selling
-                price
-              </FieldDescription>
-
-              {errors.price && (
-                <FieldError>
-                  {errors.price.message}
-                </FieldError>
-              )}
-            </FieldContent>
-          </Field>
-
           {/* Active Status */}
           <FieldLabel htmlFor="is_active">
             <Field orientation="horizontal">
@@ -267,9 +230,7 @@ export default function CollectionProductForm({ collectionId, initialData, onSuc
                 </FieldTitle>
 
                 <FieldDescription className="!mt-0.5">
-                  Enable or
-                  disable this
-                  product
+                  Enable or disable this product
                 </FieldDescription>
               </FieldContent>
 

@@ -13,7 +13,7 @@ export default async function HeroSection() {
       sort_order
     `)
     .eq("is_active", true)
-    .order("sort_order");
+    .order("sort_order", { ascending: true });
 
   const images = slides?.map((slide) => slide.image_url) ?? [];
 
@@ -25,18 +25,83 @@ export default async function HeroSection() {
     <div className="flex justify-center">
       <div className="w-full bg-white">
         {/* Hero Section */}
-        <div className="px-6 pt-9 text-center">
-          <h1 className="text-2xl font-semibold leading-snug md:text-4xl">
-            The Art of Human Expression, Uncover
+        <div className="mx-auto max-w-[90rem] px-6 pt-5 text-center">
+          <div className="mb-5 inline-flex items-center rounded-full border border-red-100 bg-red-50 px-4 py-1.5 text-sm font-medium text-red-500">
+            ✨ Premium Posters • Crafted for Every Space
+          </div>
+
+          <h1 className="mx-auto max-w-6xl text-xl font-semibold leading-tight md:text-5xl lg:text-6xl">
+            <span className="inline-block mb-2.5 md:mb-2">The Art of Human Expression, Uncover</span>
             <br />
-            <span className="font-normal italic">
+            <span className="italic font-normal">
               The Stories
             </span>{" "}
             Behind the Poster
           </h1>
 
-          <div className="mt-5 flex justify-center">
+          {/* <p className="text-muted-foreground mx-auto mt-6 max-w-4xl text-base leading-8 md:text-lg">
+            Discover premium posters inspired by iconic movies, anime, games,
+            superheroes, TV series, and timeless pop culture. Designed with
+            exceptional print quality and vibrant colors to transform every wall
+            into a statement piece that reflects your passion and personality.
+          </p> */}
+
+          <div className="my-5 md:my-6 flex justify-center">
             <PillTabsHero />
+          </div>
+
+          {/* Highlights */}
+          <div className="mx-6 md:mx-auto pt-1.5 md:pt-3 grid max-w-5xl grid-cols-2 md:grid-cols-4 gap-y-4">
+            <div>
+              <p className="text-xl md:text-3xl font-bold text-red-500">
+                500+
+              </p>
+
+              <p className="text-muted-foreground mt-1 text-sm">
+                Exclusive Designs
+              </p>
+            </div>
+
+            <div>
+              <p className="text-xl md:text-3xl font-bold text-red-500">
+                Premium
+              </p>
+
+              <p className="text-muted-foreground mt-1 text-sm">
+                High Quality Prints
+              </p>
+            </div>
+
+            <div>
+              <p className="text-xl md:text-3xl font-bold text-red-500">
+                Fast
+              </p>
+
+              <p className="text-muted-foreground mt-1 text-sm">
+                Secure Shipping
+              </p>
+            </div>
+
+            <div>
+              <p className="text-xl md:text-3xl font-bold text-red-500">
+                100%
+              </p>
+
+              <p className="text-muted-foreground mt-1 text-sm">
+                Passion Crafted
+              </p>
+            </div>
+          </div>
+
+          {/* Trust Row */}
+          <div className="text-muted-foreground mt-8 flex flex-wrap items-center justify-center gap-6 text-sm">
+            <span>🎨 Curated Collections</span>
+
+            <span>🖨️ Premium Print Quality</span>
+
+            <span>🚚 Fast & Secure Delivery</span>
+
+            <span>❤️ Designed for Collectors</span>
           </div>
         </div>
 

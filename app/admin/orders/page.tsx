@@ -1,12 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 
-import { Card, CardContent } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { DataTable } from "@/components/ui/data-table";
+import { columns } from "./columns";
 
 type Order = {
   id: string;
@@ -104,87 +103,12 @@ export default function OrdersPage() {
         </div>
       </div>
 
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>
-                Order Number
-              </TableHead>
-
-              <TableHead>
-                Customer
-              </TableHead>
-
-              <TableHead>
-                Phone
-              </TableHead>
-
-              <TableHead>
-                Total
-              </TableHead>
-
-              <TableHead>
-                Status
-              </TableHead>
-
-              <TableHead>
-                Payment
-              </TableHead>
-
-              <TableHead>
-                Created At
-              </TableHead>
-            </TableRow>
-          </TableHeader>
-
-          <TableBody>
-            {orders.map((order) => (
-              <TableRow
-                key={order.id}
-              >
-                <TableCell className="font-medium">
-                  {order.order_number}
-                </TableCell>
-
-                <TableCell>
-                  {order.first_name}{" "}
-                  {order.last_name}
-                </TableCell>
-
-                <TableCell>
-                  {order.phone}
-                </TableCell>
-
-                <TableCell>
-                  ₹{Number(order.total).toLocaleString()}
-                </TableCell>
-
-                <TableCell>
-                  <Badge
-                    variant={order.status === "paid" ? "default" : "secondary"}
-                    className="capitalize"
-                  >
-                    {order.status}
-                  </Badge>
-                </TableCell>
-
-                <TableCell>
-                  {order.paid_at
-                    ? "Paid"
-                    : "Pending"}
-                </TableCell>
-
-                <TableCell>
-                  {new Date(
-                    order.created_at
-                  ).toLocaleDateString()}
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
+      <Suspense>
+        <DataTable
+          columns={columns}
+          data={orders}
+        />
+      </Suspense>
     </div>
   );
 }

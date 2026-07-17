@@ -23,7 +23,6 @@ export async function GET(_request: Request, { params }: Props) {
           sku,
           name,
           slug,
-          price,
           collection_product_images (
             id,
             image_url,

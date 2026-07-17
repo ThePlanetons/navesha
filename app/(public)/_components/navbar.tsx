@@ -1,13 +1,15 @@
 "use client";
 
 import { useState } from "react";
+
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 import { CircleUserRound, ShoppingBag } from "lucide-react";
 
 import { Drawer, DrawerTrigger } from "@/components/ui/drawer";
 
-import { useCart } from "@/context/cart-provider";
+import { useCart } from "@/contexts/cart-provider";
 
 import PillTabs from "./pill-tabs";
 import CartDrawer from "./cart-drawer";
@@ -43,7 +45,7 @@ export default function Navbar({ scrolled }: { scrolled: boolean }) {
 
   return (
     <div
-      className="w-full flex justify-center transition-all duration-500 transform py-3"
+      className="w-full flex justify-center transition-all duration-500 transform py-2.5 md:py-3"
     >
       <div
         className={`flex items-center justify-between px-3 sm:px-4 md:px-6 lg:px-8 py-3 transition-all duration-500
@@ -54,8 +56,14 @@ export default function Navbar({ scrolled }: { scrolled: boolean }) {
         }
       >
         {/* Logo */}
-        <div className="font-semibold text-lg tracking-wide uppercase">
-          Navesha
+        <div className="relative h-8 w-32 md:h-11 md:w-44">
+          <Image
+            src="/logo/navesha_logo_transparent.png"
+            alt="Navesha"
+            fill
+            priority
+            className="object-contain"
+          />
         </div>
 
         {/* Nav Items */}

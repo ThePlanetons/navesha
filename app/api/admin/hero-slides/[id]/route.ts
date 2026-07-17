@@ -38,9 +38,24 @@ export async function PUT(request: NextRequest, context: { params: Params; }) {
       );
     }
 
-    return NextResponse.json(
-      data
-    );
+    const path = data.image_url.split(
+      "/storage/v1/object/public/uploads/"
+    )[1];
+
+    const folder = path.split("/").slice(0, -1).join("/");
+
+    const filename = path.split("/").pop();
+
+    const { data: storageData } =
+      await supabaseAdmin.storage
+        .from("uploads")
+        .list(folder, {
+          search: filename,
+        });
+
+    return NextResponse.json({
+      ...data, image_exists: !!storageData?.length,
+    });
   } catch (error) {
     return NextResponse.json(
       {

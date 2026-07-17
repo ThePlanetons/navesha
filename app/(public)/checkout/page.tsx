@@ -11,7 +11,7 @@ import { z } from "zod";
 
 import { RazorpayConstructor, RazorpayResponse } from "@/types/razorpay";
 
-import { useCart } from "@/context/cart-provider";
+import { CheckoutCartItem, PosterSize, useCart } from "@/contexts/cart-provider";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -20,6 +20,7 @@ import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 
 import { Product } from "../featured-collections/[slug]/_components/collection-products-view";
+import { usePosterPrices } from "@/contexts/poster-prices-provider";
 
 declare global {
   interface Window {
@@ -41,19 +42,10 @@ const formSchema = z.object({
   address_line_2: z.string().optional(),
   city: z.string().min(1, "City is required"),
   state: z.string().min(1, "State is required"),
-  country: z.string().min(1, "Country is required"),
   postal_code: z.string().min(1, "Postal code is required"),
 });
 
 type FormValues = z.input<typeof formSchema>;
-
-type CartItem = {
-  sku: string;
-  name: string;
-  price: number;
-  quantity: number;
-  image?: string;
-};
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -68,10 +60,11 @@ export default function CheckoutPage() {
     resolver: zodResolver(formSchema),
   });
 
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [cartItems, setCartItems] = useState<CheckoutCartItem[]>([]);
   const [loadingCart, setLoadingCart] = useState(true);
 
   const { cart } = useCart();
+  const { prices } = usePosterPrices();
 
   useEffect(() => {
     const fetchCart = async () => {
@@ -98,15 +91,21 @@ export default function CheckoutPage() {
         const data = await res.json();
 
         // Merge API product data + quantity
-        const merged = data.map((product: Product) => {
-          const cartItem = cart.find((c) => c.sku === product.sku);
+        const merged = cart.map((cartItem) => {
+          const product = data.find(
+            (p: Product) => p.sku === cartItem.sku
+          );
 
           return {
-            sku: product.sku,
-            name: product.name,
-            price: product.price,
-            quantity: cartItem?.quantity || 0,
-            image: product.collection_product_images?.[0]?.image_url,
+            sku: cartItem.sku,
+            size: cartItem.size,
+            quantity: cartItem.quantity,
+            name: product?.name ?? "",
+            price: prices[cartItem.size],
+            image:
+              product?.collection_product_images?.find(
+                (image: { id: string, image_url: string, image_role: string }) => image.image_role === "thumbnail"
+              )?.image_url,
           };
         });
 
@@ -122,10 +121,35 @@ export default function CheckoutPage() {
     fetchCart();
   }, [cart]);
 
+  const quantityBySize = cartItems.reduce(
+    (acc, item) => {
+      acc[item.size] = (acc[item.size] ?? 0) + item.quantity;
+      return acc;
+    },
+    {} as Record<PosterSize, number>
+  );
+
+  const freeBySize = Object.fromEntries(
+    Object.entries(quantityBySize).map(([size, quantity]) => [
+      size,
+      Math.floor(quantity / 5),
+    ])
+  ) as Record<PosterSize, number>;
+
+  const discount = Object.entries(freeBySize).reduce(
+    (total, [size, freeItems]) => total + freeItems * prices[size as PosterSize], 0
+  );
+
   const subtotal = cartItems.reduce(
-    (total, item) => total + item.price * item.quantity,
+    (total, item) => total + (item.price ?? 0) * item.quantity,
     0
   );
+
+  const shipping = 100;
+
+  const finalSubtotal = subtotal - discount;
+
+  const total = finalSubtotal + shipping;
 
   // 1. LOADING STATE
   if (loadingCart) {
@@ -418,16 +442,6 @@ export default function CheckoutPage() {
                           )}
                         </FieldContent>
                       </Field>
-
-                      <Field>
-                        <FieldLabel>Country</FieldLabel>
-                        <FieldContent>
-                          <Input defaultValue="India" disabled {...register("country")} />
-                          {errors.country && (
-                            <FieldError>{errors.country.message}</FieldError>
-                          )}
-                        </FieldContent>
-                      </Field>
                     </FieldGroup>
                   </FieldSet>
                 </CardContent>
@@ -442,53 +456,97 @@ export default function CheckoutPage() {
 
                   {cartItems.map((item) => (
                     <div
-                      key={item.sku}
-                      className="flex items-center justify-between gap-3"
+                      key={`${item.sku}-${item.size}`}
+                      className="flex gap-3 rounded-2xl border p-3 items-center justify-between"
                     >
-                      {/* LEFT SIDE (IMAGE + INFO) */}
-                      <div className="flex items-center gap-3">
-                        {item.image && (
-                          <Image
-                            src={item.image}
-                            alt={item.name}
-                            width={48}
-                            height={48}
-                            className="h-12 w-12 rounded-lg object-cover"
-                          />
-                        )}
+                      <div className="flex gap-3">
+                        <div className="relative h-[6rem] w-24 overflow-hidden rounded-xl bg-muted">
+                          {item.image && (
+                            <Image
+                              src={item.image}
+                              alt={item.name}
+                              fill
+                              className="object-cover"
+                            />
+                          )}
+                        </div>
 
-                        <div>
-                          <p className="font-medium">{item.name}</p>
-                          <p className="text-muted-foreground text-sm">
-                            Qty: {item.quantity}
-                          </p>
+                        <div className="flex flex-col justify-center">
+                          <h4 className="line-clamp-2 font-semibold">{item.name}</h4>
+
+                          <div className="space-y-1 mt-2">
+                            <p className="text-sm text-muted-foreground">
+                              Size: <span className="font-medium text-foreground">{item.size}</span>
+                            </p>
+                          </div>
+
+                          <div className="space-y-1 mt-3">
+                            <p className="text-sm text-muted-foreground">
+                              Qty: <span className="font-medium text-foreground">{item.quantity}</span>
+                            </p>
+                          </div>
                         </div>
                       </div>
 
-                      {/* PRICE */}
                       <span className="font-medium">
-                        ₹{(item.price * item.quantity).toLocaleString()}
+                        ₹{((item.price ?? 0) * item.quantity).toLocaleString()}
                       </span>
                     </div>
                   ))}
 
                   <Separator />
 
-                  <div className="flex items-center justify-between">
-                    <span>Subtotal</span>
-                    <span>₹{subtotal.toLocaleString()}</span>
-                  </div>
+                  {Object.entries(freeBySize).some(([, free]) => free > 0) && (
+                    <div className="rounded-xl border border-green-200 bg-green-50 p-3">
+                      <p className="mb-2 text-sm font-semibold text-green-700">
+                        🎉 Buy 4 Get 1 Free Applied
+                      </p>
 
-                  <div className="flex items-center justify-between">
-                    <span>Shipping</span>
-                    <span>₹50</span>
+                      {Object.entries(freeBySize).map(([size, free]) =>
+                        free > 0 ? (
+                          <p
+                            key={size}
+                            className="text-sm text-green-700"
+                          >
+                            {size}: {free} free poster{free > 1 ? "s" : ""}
+                          </p>
+                        ) : null
+                      )}
+                    </div>
+                  )}
+
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span>Subtotal</span>
+
+                      <span>
+                        ₹{subtotal.toLocaleString()}
+                      </span>
+                    </div>
+
+                    {discount > 0 && (
+                      <div className="flex items-center justify-between text-green-600">
+                        <span>Buy 4 Get 1 Discount</span>
+
+                        <span>
+                          -₹{discount.toLocaleString()}
+                        </span>
+                      </div>
+                    )}
+
+                    <div className="flex items-center justify-between">
+                      <span>Shipping</span>
+
+                      <span>₹{shipping.toLocaleString()}</span>
+                    </div>
                   </div>
 
                   <Separator />
 
                   <div className="flex items-center justify-between text-lg font-semibold">
                     <span>Total</span>
-                    <span>₹{Number(subtotal + 50).toLocaleString()}</span>
+
+                    <span>₹{total.toLocaleString()}</span>
                   </div>
 
                   <Button

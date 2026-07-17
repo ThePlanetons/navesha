@@ -38,19 +38,19 @@ export default function CollectionsView({ categories, collections }: Props) {
     ? collections.filter((collection) => collection.category_id === categoryActive)
     : collections;
 
-  useEffect(() => {
-    console.log("Active Category:", categoryActive);
+  // useEffect(() => {
+  //   console.log("Active Category:", categoryActive);
 
-    console.log("Collections:", collections);
+  //   console.log("Collections:", collections);
 
-    console.log(
-      "Collection Category IDs:",
-      collections.map((collection) => ({
-        title: collection.title,
-        category_id: collection.category_id,
-      }))
-    );
-  }, [categoryActive, collections]);
+  //   console.log(
+  //     "Collection Category IDs:",
+  //     collections.map((collection) => ({
+  //       title: collection.title,
+  //       category_id: collection.category_id,
+  //     }))
+  //   );
+  // }, [categoryActive, collections]);
 
   const [currentIndex, setCurrentIndex] = useState(0);
 

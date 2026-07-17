@@ -8,9 +8,7 @@ export default function Home() {
     <>
       <Suspense>
         <HeroSection />
-      </Suspense>
 
-      <Suspense>
         <Collections />
       </Suspense>
     </>
