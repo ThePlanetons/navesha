@@ -76,10 +76,10 @@ export async function POST(req: NextRequest) {
     const { data: products, error: productError, } = await supabaseAdmin
       .from("collection_products")
       .select(`
-          sku,
-          name,
-          id
-        `)
+        sku,
+        name,
+        id
+      `)
       .in("sku", skus);
 
     if (productError) {
@@ -96,9 +96,9 @@ export async function POST(req: NextRequest) {
     const { data: posterPrices, error: priceError, } = await supabaseAdmin
       .from("poster_prices")
       .select(`
-      size,
-      price
-    `);
+        size,
+        price
+      `);
 
     /*
     -----------------------------------
