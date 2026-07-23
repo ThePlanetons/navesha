@@ -62,6 +62,7 @@ export default function Navbar({ scrolled }: { scrolled: boolean }) {
             alt="Navesha"
             fill
             priority
+            sizes="(min-width: 768px) 176px, 128px"
             className="object-contain"
           />
         </div>

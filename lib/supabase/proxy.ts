@@ -70,12 +70,11 @@ export async function updateSession(request: NextRequest) {
   const isAdminRoute = pathname === "/admin" || pathname.startsWith("/admin/");
 
   if (isAdminRoute && user) {
-    const { data: profile } =
-      await supabase
-        .from("profiles")
-        .select("role")
-        .eq("id", user.id)
-        .single();
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", user.id)
+      .single();
 
     if (!profile || profile.role !== "admin") {
       const url = request.nextUrl.clone();
@@ -93,12 +92,11 @@ export async function updateSession(request: NextRequest) {
   const isDashboardRoute = pathname === "/dashboard" || pathname.startsWith("/dashboard/");
 
   if (isDashboardRoute && user) {
-    const { data: profile } =
-      await supabase
-        .from("profiles")
-        .select("role")
-        .eq("id", user.id)
-        .single();
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", user.id)
+      .single();
 
     if (profile?.role === "admin") {
       const url = request.nextUrl.clone();
