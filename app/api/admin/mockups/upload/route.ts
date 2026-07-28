@@ -23,7 +23,7 @@ export async function POST(request: Request) {
 
     const fileName = `${Date.now()}.${fileExt}`;
 
-    const filePath = `hero-slides/${fileName}`;
+    const filePath = `mockups/${fileName}`;
 
     const { error: uploadError } = await supabaseAdmin.storage
       .from("uploads")

@@ -279,7 +279,7 @@ export default function CollectionProductsPage({ slug, }: Props) {
                           </Button>
                         </DialogTrigger>
 
-                        <DialogContent className="flex h-[95vh] flex-col overflow-hidden p-0 sm:max-w-6xl gap-0 [&>button]:top-3 [&>button]:right-4">
+                        <DialogContent className="flex max-h-[90vh] flex-col overflow-hidden p-0 sm:max-w-6xl gap-0 [&>button]:top-3 [&>button]:right-4">
                           <DialogHeader className="shrink-0 px-4 py-3 text-left">
                             <DialogTitle className="text-xl">
                               Manage Product Images

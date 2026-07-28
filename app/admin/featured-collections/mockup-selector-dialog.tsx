@@ -16,7 +16,6 @@ import { Separator } from "@/components/ui/separator";
 
 import { Mockup } from "./type";
 
-
 import { toast } from "sonner";
 import { Rnd } from "react-rnd";
 import { toBlob } from "html-to-image";
@@ -171,7 +170,7 @@ export default function MockupSelectorDialog({
       open={open}
       onOpenChange={onOpenChange}
     >
-      <DialogContent className="flex h-[95vh] flex-col overflow-hidden p-0 sm:max-w-6xl gap-0 [&>button]:top-3 [&>button]:right-4">
+      <DialogContent className="flex max-h-[90vh] flex-col overflow-hidden p-0 sm:max-w-6xl gap-0 [&>button]:top-3 [&>button]:right-4">
         <DialogHeader className="shrink-0 px-4 py-3 text-left">
           <DialogTitle className="text-xl">
             {posterPreview ? "Edit Mockup" : "Choose Mockup"}
@@ -180,79 +179,75 @@ export default function MockupSelectorDialog({
 
         <Separator />
 
-        {!posterPreview ? (
-          <>
-            <div className="flex-1 overflow-y-auto p-6">
-              <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
-                {mockups.map((mockup) => (
-                  <button
-                    key={mockup.id}
-                    type="button"
-                    onClick={() => setSelectedMockup(mockup)}
-                    className={`overflow-hidden rounded-xl border transition ${selectedMockup?.id === mockup.id
-                      ? "border-red-500 ring-2 ring-red-500"
-                      : "border-gray-200"
-                      }`}
-                  >
-                    <div className="relative h-[250px]">
-                      <Image
-                        fill
-                        src={mockup.image_url}
-                        alt={mockup.name}
-                        className="object-cover"
-                      />
-                    </div>
+        <div className="flex-1 overflow-y-auto p-4">
+          {!posterPreview ? (
+            <>
+              <div className="space-y-4 gap-0">
+                <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+                  {mockups.map((mockup) => (
+                    <button
+                      key={mockup.id}
+                      type="button"
+                      onClick={() => setSelectedMockup(mockup)}
+                      className={`overflow-hidden rounded-xl border transition ${selectedMockup?.id === mockup.id
+                        ? "border-red-500 ring-2 ring-red-500"
+                        : "border-gray-200"
+                        }`}
+                    >
+                      <div className="relative h-[250px]">
+                        <Image
+                          fill
+                          src={mockup.image_url}
+                          alt={mockup.name}
+                          className="object-cover"
+                        />
+                      </div>
 
-                    <div className="p-3 font-medium">
-                      {mockup.name}
-                    </div>
-                  </button>
-                ))}
+                      <div className="p-3 font-medium">
+                        {mockup.name}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+
+                <div className="flex justify-end">
+
+                  <input
+                    ref={fileInputRef}
+                    hidden
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+
+                      if (!file || !selectedMockup) return;
+
+                      const reader = new FileReader();
+
+                      reader.onload = () => {
+                        setPosterPreview(reader.result as string);
+                      };
+
+                      reader.readAsDataURL(file);
+
+                      e.target.value = "";
+                    }}
+                  />
+
+                  <Button
+                    disabled={!selectedMockup}
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    Continue
+                  </Button>
+                </div>
               </div>
-            </div>
-
-            <Separator />
-
-            <div className="flex justify-end px-4 py-3">
-              <Button
-                disabled={!selectedMockup}
-                onClick={() => fileInputRef.current?.click()}
-              >
-                Continue
-              </Button>
-            </div>
-
-            <input
-              ref={fileInputRef}
-              hidden
-              type="file"
-              accept="image/*"
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-
-                if (!file || !selectedMockup) return;
-
-                const reader = new FileReader();
-
-                reader.onload = () => {
-                  setPosterPreview(reader.result as string);
-                };
-
-                reader.readAsDataURL(file);
-
-                e.target.value = "";
-              }}
-            />
-          </>
-        ) : (
-          <>
-            <div className="flex-1 overflow-auto p-6">
-              <div ref={editorRef}>
-                <div className="flex justify-center">
-                  <div
-                    ref={mockupRef}
-                    className="relative inline-block"
-                  >
+            </>
+          ) : (
+            <>
+              <div className="space-y-4 gap-0">
+                <div ref={editorRef} className="flex justify-center">
+                  <div ref={mockupRef} className="relative inline-block">
                     <Image
                       src={selectedMockup!.image_url}
                       alt={selectedMockup!.name}
@@ -351,28 +346,26 @@ export default function MockupSelectorDialog({
                     </Rnd>
                   </div>
                 </div>
+
+                <div className="flex items-center justify-between">
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setPosterPreview("");
+                      setSelectedMockup(null);
+                    }}
+                  >
+                    Back
+                  </Button>
+
+                  <Button onClick={handleSave}>
+                    Save
+                  </Button>
+                </div>
               </div>
-            </div>
-
-            <Separator />
-
-            <div className="flex items-center justify-between px-4 py-3">
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setPosterPreview("");
-                  setSelectedMockup(null);
-                }}
-              >
-                Back
-              </Button>
-
-              <Button onClick={handleSave}>
-                Save
-              </Button>
-            </div>
-          </>
-        )}
+            </>
+          )}
+        </div>
 
         {/* <div className="flex-1 overflow-y-auto p-6">
           <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
