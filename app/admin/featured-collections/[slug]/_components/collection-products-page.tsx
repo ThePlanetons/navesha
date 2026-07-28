@@ -76,8 +76,7 @@ export default function CollectionProductsPage({ slug, }: Props) {
           </h1>
 
           <p className="text-muted-foreground mt-1">
-            Manage your collection
-            products
+            Manage your collection products
           </p>
         </div>
 

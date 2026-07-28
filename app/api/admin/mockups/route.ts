@@ -22,11 +22,7 @@ export async function GET() {
   } catch (error) {
     return NextResponse.json(
       {
-        success: false,
-        error:
-          error instanceof Error
-            ? error.message
-            : "Internal Server Error",
+        error: error instanceof Error ? error.message : String(error),
       },
       { status: 500 }
     );

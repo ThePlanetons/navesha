@@ -68,8 +68,7 @@ export function OrderActions({
             method: "PATCH",
 
             headers: {
-              "Content-Type":
-                "application/json",
+              "Content-Type": "application/json",
             },
 
             body: JSON.stringify({
@@ -82,13 +81,9 @@ export function OrderActions({
           throw new Error();
         }
 
-        toast.success(
-          "Order status updated"
-        );
-      } catch {
-        toast.error(
-          "Failed to update order"
-        );
+        toast.success("Order status updated");
+      } catch (error) {
+        toast.error(error instanceof Error ? error.message : "Something went wrong");
       }
     });
   };

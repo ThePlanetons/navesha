@@ -2,7 +2,7 @@
 
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import Image from "next/image";
 
@@ -12,8 +12,7 @@ import { useForm } from "react-hook-form";
 
 import { z } from "zod";
 
-import { ImageIcon, Loader2, Trash2, Upload } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { ImageIcon, Loader2, Trash2 } from "lucide-react";
 
 import { toast } from "sonner";
 
@@ -53,10 +52,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Separator } from "@/components/ui/separator";
 import MockupSelectorDialog from "./mockup-selector-dialog";
+
 import { Mockup } from "./type";
-import PosterEditor from "./poster";
 
 type ProductImage = {
   id: string;
@@ -124,48 +122,34 @@ function ImageUpdateForm({
 
   const onSubmit = async (values: FormValues) => {
     try {
-      const response = await fetch(
-        `${updateBaseUrl}/${image.id}`,
+      const response = await fetch(`${updateBaseUrl}/${image.id}`,
         {
           method: "PUT",
-
           headers: {
             "Content-Type": "application/json",
           },
-
-          body: JSON.stringify(
-            values
-          ),
+          body: JSON.stringify(values),
         }
       );
 
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(
-          result.error
-        );
+        throw new Error(result.error);
       }
 
-      toast.success(
-        result.message
-      );
+      toast.success(result.message);
 
       onSuccess?.();
     } catch (error) {
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : "Something went wrong"
-      );
+      toast.error(error instanceof Error ? error.message : "Something went wrong");
     }
   };
 
   const handleDelete =
     async () => {
       try {
-        const response = await fetch(
-          `${deleteBaseUrl}/${image.id}`,
+        const response = await fetch(`${deleteBaseUrl}/${image.id}`,
           {
             method: "DELETE",
           }
@@ -174,22 +158,14 @@ function ImageUpdateForm({
         const result = await response.json();
 
         if (!response.ok) {
-          throw new Error(
-            result.error
-          );
+          throw new Error(result.error);
         }
 
-        toast.success(
-          result.message
-        );
+        toast.success(result.message);
 
         onSuccess?.();
       } catch (error) {
-        toast.error(
-          error instanceof Error
-            ? error.message
-            : "Something went wrong"
-        );
+        toast.error(error instanceof Error ? error.message : "Something went wrong");
       }
     };
 
@@ -276,16 +252,13 @@ function ImageUpdateForm({
               />
 
               <FieldDescription className="!mt-0.5">
-                Lower numbers
-                appear first
+                Lower numbers appear first
               </FieldDescription>
 
               {errors.sort_order && (
                 <FieldError>
                   {
-                    errors
-                      .sort_order
-                      .message
+                    errors.sort_order.message
                   }
                 </FieldError>
               )}
@@ -317,9 +290,7 @@ function ImageUpdateForm({
                 </AlertDialogTitle>
 
                 <AlertDialogDescription>
-                  This action
-                  cannot be
-                  undone.
+                  This action cannot be undone.
                 </AlertDialogDescription>
               </AlertDialogHeader>
 
@@ -380,13 +351,7 @@ export default function ImagesManager({
 
   const [loading, setLoading] = useState(true);
 
-  const [uploading, setUploading] = useState(false);
-
-  useEffect(() => {
-    fetchImages();
-  }, []);
-
-  const fetchImages = async () => {
+  const fetchImages = useCallback(async () => {
     try {
       setLoading(true);
 
@@ -396,111 +361,19 @@ export default function ImagesManager({
 
       setImages(data || []);
     } catch (error) {
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : "Failed to fetch images"
-      );
+      toast.error(error instanceof Error ? error.message : "Something went wrong");
     } finally {
       setLoading(false);
     }
-  };
+  }, [fetchUrl]);
 
-  const handleUpload = async (files: FileList | null) => {
-    if (!files || files.length === 0) {
-      return;
-    }
-
-    try {
-      setUploading(true);
-
-      let nextSortOrder = images.length > 0
-        ? Math.max(
-          ...images.map(
-            (
-              image
-            ) =>
-              image.sort_order
-          )
-        ) + 1
-        : 1;
-
-      for (const file of Array.from(files)) {
-        const formData = new FormData();
-
-        formData.append("file", file);
-        // formData.append("mockup_id", selectedMockup);
-
-        const uploadResponse = await fetch(uploadUrl, {
-          method: "POST",
-          body: formData,
-        });
-
-        const uploadResult = await uploadResponse.json();
-
-        if (!uploadResponse.ok) {
-          throw new Error(uploadResult.error);
-        }
-
-        const imageResponse = await fetch(createUrl,
-          {
-            method: "POST",
-
-            headers: {
-              "Content-Type": "application/json",
-            },
-
-            body: JSON.stringify(
-              {
-                [entityKey]: entityId,
-                image_url: uploadResult.url,
-                image_role: nextSortOrder === 1 ? "thumbnail" : "gallery",
-                sort_order: nextSortOrder,
-              }
-            ),
-          }
-        );
-
-        const imageResult = await imageResponse.json();
-
-        if (!imageResponse.ok) {
-          throw new Error(imageResult.error);
-        }
-
-        nextSortOrder++;
-      }
-
-      toast.success(
-        "Images uploaded successfully"
-      );
-
-      fetchImages();
-    } catch (error) {
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : "Something went wrong"
-      );
-    } finally {
-      setUploading(false);
-    }
-  };
-
-  const [editorOpen, setEditorOpen] = useState(false);
-
-  const [editingMockup, setEditingMockup] = useState<Mockup | null>(null);
-
-  const [posterFile, setPosterFile] = useState<File | null>(null);
-
-  const [posterPreview, setPosterPreview] = useState("");
+  useEffect(() => {
+    fetchImages();
+  }, [fetchImages]);
 
   const [selectorOpen, setSelectorOpen] = useState(false);
 
-  const [selectedMockup, setSelectedMockup] = useState<Mockup | null>(null);
-
   const [mockups, setMockups] = useState<Mockup[]>([]);
-
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const fetchMockups = async () => {
@@ -524,24 +397,8 @@ export default function ImagesManager({
     fetchMockups();
   }, []);
 
-  const [posterTransform, setPosterTransform] = useState({
-    x: 100,
-    y: 100,
-    width: 250,
-    height: 350,
-  });
-
   return (
     <div className="space-y-6">
-      {editingMockup && (
-        <PosterEditor
-          mockup={editingMockup}
-          posterPreview={posterPreview}
-          transform={posterTransform}
-          onTransformChange={setPosterTransform}
-        />
-      )}
-
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="space-y-2">
@@ -554,7 +411,7 @@ export default function ImagesManager({
           </p>
         </div>
 
-        {/* <Button
+        <Button
           onClick={() => setSelectorOpen(true)}
         >
           Upload Images
@@ -564,182 +421,30 @@ export default function ImagesManager({
           open={selectorOpen}
           onOpenChange={setSelectorOpen}
           mockups={mockups}
-          selectedMockup={selectedMockup}
-          onSelect={setSelectedMockup}
-          onPosterSelected={(mockup, file) => {
-
-            setEditingMockup(mockup);
-
-            setPosterFile(file);
-
-            setPosterPreview(
-              URL.createObjectURL(file)
-            );
-
-            setSelectorOpen(false);
-
-            setEditorOpen(true);
-
-          }}
-        /> */}
-
-        {/* <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/*"
-          hidden
-          onChange={(e) => {
-            const file = e.target.files?.[0];
-
-            if (!file) {
-              return;
-            }
-
-            setSelectedFile(file);
-
-            setSelectorOpen(false);
-
-            setEditorOpen(true);
-          }}
-        /> */}
-
-        {/* Upload */}
-        {/* <Dialog open={mockupDialogOpen} onOpenChange={setMockupDialogOpen}>
-          <DialogTrigger asChild>
-            <Button className="rounded-xl">
-              <Upload className="h-4 w-4" />
-
-              Upload Images
-            </Button>
-          </DialogTrigger>
-
-          <DialogContent className="flex h-[95vh] flex-col overflow-hidden p-0 sm:max-w-6xl gap-0 [&>button]:top-3 [&>button]:right-4">
-            <DialogHeader className="shrink-0 px-4 py-3 text-left">
-              <DialogTitle className="text-xl">
-                Choose Mockup
-              </DialogTitle>
-            </DialogHeader>
-
-            <Separator />
-
-            <div className="flex-1 overflow-y-auto p-4">
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                {mockups.map((mockup) => (
-                  <div
-                    key={mockup.id}
-                    onClick={() => setSelectedMockup(mockup.id)}
-                    className={`w-full rounded-xl border overflow-hidden cursor-pointer ${selectedMockup === mockup.id
-                      ? "border-red-500 ring-2 ring-red-500"
-                      : "border-gray-200"
-                      }`
-                    }
-                  >
-                    <div className="relative w-full h-[300px]">
-                      <Image
-                        src={mockup.image_url}
-                        alt={mockup.name}
-                        fill
-                        className="object-cover"
-                        sizes="250px"
-                      />
-                    </div>
-
-                    <div className="h-14 flex items-center justify-center px-3 text-center font-medium">
-                      {mockup.name}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <Separator />
-
-            <div className="shrink-0 px-4 py-3">
-              <div className="flex justify-end">
-                <Button
-                  disabled={!selectedMockup}
-                  onClick={() => {
-                    const selected = mockups.find(
-                      (m) => m.id === selectedMockup
-                    );
-
-                    if (!selected) return;
-
-                    setEditingMockup(selected);
-
-                    setMockupDialogOpen(false);
-
-                    fileInputRef.current?.click();
-                  }}
-                >
-                  Continue
-                </Button>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
-
-        <input
-          ref={fileInputRef}
-          type="file"
-          multiple
-          accept="image/*"
-          className="hidden"
-          onChange={(e) => handleUpload(e.target.files)}
-        /> */}
-
-        <Button
-          asChild
-          disabled={uploading}
-          size="lg"
-          className="rounded-xl"
-        >
-          <label>
-            {uploading ? (
-              <>
-                <Loader2 className="h-4 w-4 animate-spin" />
-
-                Uploading...
-              </>
-            ) : (
-              <>
-                <Upload className="h-4 w-4" />
-
-                Upload Images
-              </>
-            )}
-
-            <input
-              type="file"
-              multiple
-              accept="image/*"
-              className="hidden"
-              onChange={(e) => handleUpload(e.target.files)}
-            />
-          </label>
-        </Button>
+          entityId={entityId}
+          entityKey={entityKey}
+          createUrl={createUrl}
+          uploadUrl={uploadUrl}
+        />
       </div>
 
       {/* Content */}
       <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
         {/* Loading */}
-        {loading &&
-          Array.from({
-            length: 8,
-          }).map((_, index) => (
-            <Card
-              key={`loading-${index}`}
-              className="overflow-hidden rounded-3xl py-0 gap-0 border-dashed"
-            >
-              <div className="h-64 animate-pulse bg-muted" />
+        {loading && Array.from({ length: 4 }).map((_, index) => (
+          <Card
+            key={`loading-${index}`}
+            className="overflow-hidden rounded-3xl py-0 gap-0 border-dashed"
+          >
+            <div className="h-64 animate-pulse bg-muted" />
 
-              <CardContent className="space-y-3 p-4">
-                <div className="h-5 w-full animate-pulse rounded bg-muted" />
+            <CardContent className="space-y-3 p-4">
+              <div className="h-5 w-full animate-pulse rounded bg-muted" />
 
-                <div className="h-10 w-full animate-pulse rounded bg-muted" />
-              </CardContent>
-            </Card>
-          ))}
+              <div className="h-10 w-full animate-pulse rounded bg-muted" />
+            </CardContent>
+          </Card>
+        ))}
 
         {/* Images */}
         {!loading && images.map((image) => (
@@ -783,47 +488,10 @@ export default function ImagesManager({
             </CardContent>
           </Card>
         ))}
-
-        {/* Uploading */}
-        {uploading &&
-          Array.from({
-            length: 4,
-          }).map((_, index) => (
-            <Card
-              key={`uploading-${index}`}
-              className="overflow-hidden rounded-3xl py-0 gap-0 border-dashed"
-            >
-              <div className="relative flex h-64 items-center justify-center bg-muted/50">
-                <div className="flex flex-col items-center gap-3">
-                  <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-background shadow-sm">
-                    <Loader2 className="text-muted-foreground h-7 w-7 animate-spin" />
-                  </div>
-
-                  <div className="space-y-1 text-center">
-                    <p className="text-sm font-medium">
-                      Uploading
-                      Image
-                    </p>
-
-                    <p className="text-muted-foreground text-xs">
-                      Please
-                      wait...
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <CardContent className="space-y-3 p-4">
-                <div className="h-5 w-full animate-pulse rounded bg-muted" />
-
-                <div className="h-10 w-full animate-pulse rounded bg-muted" />
-              </CardContent>
-            </Card>
-          ))}
       </div>
 
       {/* Empty */}
-      {!loading && !uploading && images.length === 0 && (
+      {!loading && images.length === 0 && (
         <Card className="rounded-3xl py-0 gap-0 border-dashed">
           <CardContent className="flex flex-col items-center justify-center space-y-6 p-10 text-center">
             <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-muted">

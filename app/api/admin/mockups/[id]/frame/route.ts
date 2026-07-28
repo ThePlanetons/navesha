@@ -86,14 +86,9 @@ export async function PATCH(
       }
     );
   } catch (error) {
-    console.error(
-      error
-    );
-
     return NextResponse.json(
       {
-        message:
-          "Internal server error",
+        error: error instanceof Error ? error.message : String(error),
       },
       {
         status: 500,

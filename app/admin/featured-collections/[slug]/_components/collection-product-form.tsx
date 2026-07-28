@@ -128,9 +128,7 @@ export default function CollectionProductForm({ collectionId, initialData, onSuc
 
       onSuccess?.();
     } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : "Something went wrong"
-      );
+      toast.error(error instanceof Error ? error.message : "Something went wrong");
     }
   };
 

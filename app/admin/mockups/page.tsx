@@ -47,11 +47,7 @@ export default function Page() {
 
       setMockups(result);
     } catch (error) {
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : "Something went wrong"
-      );
+      toast.error(error instanceof Error ? error.message : "Something went wrong");
     } finally {
       setLoading(false);
     }
@@ -203,11 +199,7 @@ function FrameSelector({
         "Frame updated successfully"
       );
     } catch (error) {
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : "Something went wrong"
-      );
+      toast.error(error instanceof Error ? error.message : "Something went wrong");
     } finally {
       setSaving(false);
     }
