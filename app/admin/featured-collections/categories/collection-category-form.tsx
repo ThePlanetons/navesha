@@ -43,8 +43,7 @@ type CollectionCategoryFormProps = {
   onSuccess?: () => void;
 };
 
-type FormValues =
-  z.input<typeof formSchema>;
+type FormValues =  z.input<typeof formSchema>;
 
 export default function AddCollectionCategoryForm({ initialData, onSuccess, }: CollectionCategoryFormProps) {
   const isEdit = !!initialData;
@@ -65,7 +64,7 @@ export default function AddCollectionCategoryForm({ initialData, onSuccess, }: C
     defaultValues: {
       name: initialData?.name || "",
       slug: initialData?.slug || "",
-      sort_order: initialData?.sort_order || 0,
+      sort_order: initialData?.sort_order || 1,
       is_active: initialData?.is_active ?? true,
     },
   });
@@ -138,8 +137,7 @@ export default function AddCollectionCategoryForm({ initialData, onSuccess, }: C
 
                   setValue("name", value);
 
-                  setValue("slug", generateSlug(value)
-                  );
+                  setValue("slug", generateSlug(value));
                 }}
               />
 

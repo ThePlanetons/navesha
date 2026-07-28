@@ -345,10 +345,7 @@ export async function POST(req: NextRequest) {
   catch (error) {
     return NextResponse.json(
       {
-        error:
-          error instanceof Error
-            ? error.message
-            : JSON.stringify(error)
+        error: error instanceof Error ? error.message : String(error),
       },
       {
         status: 500

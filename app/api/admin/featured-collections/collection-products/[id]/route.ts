@@ -32,10 +32,7 @@ export async function GET(_request: NextRequest, context: { params: Params; }) {
   } catch (error) {
     return NextResponse.json(
       {
-        error:
-          error instanceof Error
-            ? error.message
-            : String(error),
+        error: error instanceof Error ? error.message : String(error),
       },
       {
         status: 500,
@@ -85,10 +82,7 @@ export async function PUT(request: NextRequest, context: { params: Params; }) {
   } catch (error) {
     return NextResponse.json(
       {
-        error:
-          error instanceof Error
-            ? error.message
-            : String(error),
+        error: error instanceof Error ? error.message : String(error),
       },
       {
         status: 500,
@@ -119,10 +113,7 @@ export async function DELETE(_request: NextRequest, context: { params: Params; }
   } catch (error) {
     return NextResponse.json(
       {
-        error:
-          error instanceof Error
-            ? error.message
-            : String(error),
+        error: error instanceof Error ? error.message : String(error),
       },
       {
         status: 500,

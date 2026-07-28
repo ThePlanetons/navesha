@@ -29,12 +29,11 @@ export async function GET(
     }
 
     return NextResponse.json(data);
-  } catch (err) {
-    console.error(err);
+  } catch (error) {
 
     return NextResponse.json(
       {
-        message: "Internal Server Error",
+        error: error instanceof Error ? error.message : String(error),
       },
       {
         status: 500,

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
 import Image from "next/image";
 
@@ -9,23 +9,31 @@ import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogMedia, AlertDialogTitle, AlertDialogTrigger, } from "@/components/ui/alert-dialog";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 
-import { Rnd } from "react-rnd";
+import { AlertTriangle, Pencil, Plus, Trash2 } from "lucide-react";
+import MockupForm from "./mockup-form";
 
-type Mockup = {
+export type Mockup = {
   id: string;
   name: string;
   image_url: string;
-  frame_x: number | null;
-  frame_y: number | null;
-  frame_width: number | null;
-  frame_height: number | null;
+  sort_order: number;
+  is_active: boolean;
+
+  image_exists?: boolean;
 };
 
 export default function Page() {
   const [mockups, setMockups] = useState<Mockup[]>([]);
 
+  const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(true);
+
+  const [editData, setEditData] = useState<Mockup | undefined>();
 
   useEffect(() => {
     fetchMockups();
@@ -47,13 +55,32 @@ export default function Page() {
 
       setMockups(result);
     } catch (error) {
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : "Something went wrong"
-      );
+      toast.error(error instanceof Error ? error.message : "Something went wrong");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    try {
+      const response = await fetch(
+        `/api/admin/mockups/${id}`,
+        { method: "DELETE", }
+      );
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error);
+      }
+
+      setMockups((prev) =>
+        prev.filter((mockup) => mockup.id !== id)
+      );
+
+      toast.success(result.message);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Something went wrong");
     }
   };
 
@@ -66,238 +93,204 @@ export default function Page() {
   }
 
   return (
-    <div className="grid gap-6 p-8 md:grid-cols-2 xl:grid-cols-3">
-      {mockups.map((mockup) => (
-        <div
-          key={mockup.id}
-          className="overflow-hidden rounded-2xl border"
-        >
-          <div className="relative aspect-video">
-            <Image
-              src={mockup.image_url}
-              alt={mockup.name}
-              fill
-              className="object-cover"
-            />
-          </div>
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold">
+            Mockups
+          </h1>
 
-          <div className="flex justify-between p-4">
-            <h2 className="text-lg font-semibold">
-              {mockup.name}
-            </h2>
-
-            <Dialog key={mockup.id}>
-              <DialogTrigger asChild>
-                <Button className="rounded-xl">
-                  Configure Frame
-                </Button>
-              </DialogTrigger>
-
-              <DialogContent className="flex max-h-[90vh] flex-col overflow-hidden gap-0 p-0 sm:max-w-5xl">
-                <DialogHeader className="shrink-0 px-4 py-3 text-left">
-                  <DialogTitle>
-                    Configure Frame
-                  </DialogTitle>
-                </DialogHeader>
-
-                <Separator />
-
-                <div className="flex-1 overflow-y-auto p-4">
-                  <FrameSelector
-                    mockup={mockup}
-                  />
-                  {/* <Image
-                    src={mockup.image_url}
-                    alt={mockup.name}
-                    width={900}
-                    height={900}
-                    className="h-auto max-h-[70vh] w-auto rounded-xl border"
-                  /> */}
-                </div>
-              </DialogContent>
-            </Dialog>
-          </div>
+          <p className="text-muted-foreground mt-1">
+            Manage your collection of product mockup templates.
+          </p>
         </div>
-      ))}
-    </div>
-  );
-}
 
-function FrameSelector({
-  mockup,
-}: {
-  mockup: Mockup;
-}) {
-  const imageRef = useRef<HTMLImageElement>(null);
+        <div className="flex items-center gap-3">
+          {/* Add Mockup */}
+          <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+              <Button className="rounded-xl">
+                <Plus className="h-4 w-4" />
 
+                Add Mockup
+              </Button>
+            </DialogTrigger>
 
-  const [imageSize, setImageSize] = useState({
-    width: 0,
-    height: 0,
-  });
+            <DialogContent className="flex max-h-[90vh] flex-col overflow-hidden p-0 sm:max-w-lg gap-0 [&>button]:top-3 [&>button]:right-4">
+              <DialogHeader className="shrink-0 px-4 py-3 text-left">
+                <DialogTitle className="text-xl">
+                  Create Mockup
+                </DialogTitle>
+              </DialogHeader>
 
+              <Separator />
 
-  useEffect(() => {
-    const img = new window.Image();
+              <div className="flex-1 overflow-y-auto p-4">
+                <MockupForm
+                  onSuccess={(newMockup) => {
+                    setMockups((prev) =>
+                      [...prev, newMockup].sort(
+                        (a, b) => a.sort_order - b.sort_order
+                      )
+                    );
 
-    img.src = mockup.image_url;
-
-    img.onload = () => {
-      setImageSize({
-        width: img.naturalWidth,
-        height: img.naturalHeight,
-      });
-    };
-  }, [mockup.image_url]);
-
-  const [frame, setFrame] = useState({
-    frame_x: mockup.frame_x ?? 100,
-    frame_y: mockup.frame_y ?? 100,
-    frame_width: mockup.frame_width ?? 300,
-    frame_height: mockup.frame_height ?? 300,
-  });
-
-  const [saving, setSaving] = useState(false);
-
-  const updateFrame = async () => {
-    if (!frame) {
-      return;
-    }
-
-    try {
-      setSaving(true);
-
-      const displayedWidth = imageRef.current!.clientWidth;
-      const displayedHeight = imageRef.current!.clientHeight;
-
-      const scaleX = imageSize.width / displayedWidth;
-      const scaleY = imageSize.height / displayedHeight;
-
-      const payload = {
-        frame_x: Math.round(frame.frame_x * scaleX),
-        frame_y: Math.round(frame.frame_y * scaleY),
-        frame_width: Math.round(frame.frame_width * scaleX),
-        frame_height: Math.round(frame.frame_height * scaleY),
-      };
-
-      const response = await fetch(
-        `/api/admin/mockups/${mockup.id}/frame`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(payload),
-        }
-      );
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(
-          data.message || "Failed to update frame"
-        );
-      }
-
-      toast.success(
-        "Frame updated successfully"
-      );
-    } catch (error) {
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : "Something went wrong"
-      );
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  return (
-    <div className="flex-1 overflow-y-auto p-4">
-      <p className="mb-4 text-sm text-muted-foreground">
-        Click top-left corner and then bottom-right corner of the frame.
-      </p>
-
-      <div className="relative mx-auto w-fit">
-        <Image
-          ref={imageRef}
-          src={mockup.image_url}
-          alt={mockup.name}
-          width={imageSize.width || 1}
-          height={imageSize.height || 1}
-          className="max-h-[70vh] w-auto rounded-xl border"
-        />
-
-        <Rnd
-          bounds="parent"
-          position={{
-            x: frame.frame_x,
-            y: frame.frame_y,
-          }}
-          size={{
-            width: frame.frame_width,
-            height: frame.frame_height,
-          }}
-          onDragStop={(e, d) => {
-            setFrame((prev) => ({
-              ...prev,
-              frame_x: d.x,
-              frame_y: d.y,
-            }));
-          }}
-          onResizeStop={(e, direction, ref, delta, position) => {
-            setFrame({
-              frame_x: position.x,
-              frame_y: position.y,
-              frame_width: parseInt(ref.style.width),
-              frame_height: parseInt(ref.style.height),
-            });
-          }}
-          enableResizing={{
-            top: true,
-            right: true,
-            bottom: true,
-            left: true,
-            topRight: true,
-            bottomRight: true,
-            bottomLeft: true,
-            topLeft: true,
-          }}
-          className="absolute border-2 border-red-500 bg-red-500/10 z-10"
-        />
+                    setOpen(false);
+                  }}
+                />
+              </div>
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
 
-      {frame && (
-        <div className="mt-4 rounded-xl border p-4 text-sm">
-          <p>
-            X: {frame.frame_x}
-          </p>
-
-          <p>
-            Y: {frame.frame_y}
-          </p>
-
-          <p>
-            Width: {frame.frame_width}
-          </p>
-
-          <p>
-            Height: {frame.frame_height}
-          </p>
-
-          <Button
-            className="mt-4"
-            onClick={updateFrame}
-            disabled={saving}
+      <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+        {mockups.map((mockup) => (
+          <Card className="rounded-3xl py-0 gap-0 border-dashed"
+            key={mockup.id}
           >
-            {saving
-              ? "Updating..."
-              : "Update Frame"
-            }
-          </Button>
-        </div>
-      )}
+            <div className="relative overflow-hidden rounded-t-3xl">
+              {/* Image */}
+              <div className="relative h-56 w-full">
+                {mockup.image_exists ? (
+                  <Image
+                    src={mockup.image_url}
+                    alt={mockup.name}
+                    fill
+                    className="object-cover"
+                  />
+                ) : (
+                  <div className="flex h-full w-full flex-col items-center justify-center gap-3 bg-muted/40 px-6 text-center">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-destructive/10 text-destructive">
+                      <AlertTriangle className="h-6 w-6" />
+                    </div>
+
+                    <div className="space-y-1">
+                      <p className="font-medium">
+                        Missing Image
+                      </p>
+
+                      <p className="text-muted-foreground text-sm">
+                        File not found in storage bucket
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                <div className="absolute inset-x-0 top-0 z-10 flex justify-start p-4">
+                  <Badge
+                    variant={mockup.is_active ? "default" : "secondary"}
+                    className="rounded-full shadow-md"
+                  >
+                    {mockup.is_active ? "Active" : "Inactive"}
+                  </Badge>
+                </div>
+
+                <div className="absolute inset-x-0 top-0 z-10 flex justify-end p-4">
+                  <Badge
+                  variant="secondary"
+                  className="rounded-full border bg-white text-black hover:bg-white"
+                >
+                  #{mockup.sort_order}
+                </Badge>
+                </div>
+              </div>
+            </div>
+
+            <CardContent className="space-y-3 p-4">
+              <div className="flex items-center justify-between">
+                <div className="inline-flex text-sm">
+                  <div className="font-medium">
+                    {mockup.name}
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  {/* Edit */}
+                  <Dialog
+                    open={open && editData?.id === mockup.id}
+                    onOpenChange={(value) => {
+                      setOpen(value);
+
+                      if (!value) {
+                        setEditData(undefined);
+                      }
+                    }}
+                  >
+                    <DialogTrigger asChild>
+                      <Button
+                        size="icon"
+                        variant="outline"
+                        className="rounded-xl"
+                        onClick={() => { setEditData(mockup); }}
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                    </DialogTrigger>
+
+                    <DialogContent className="flex max-h-[90vh] flex-col overflow-hidden p-0 sm:max-w-lg gap-0 [&>button]:top-3 [&>button]:right-4">
+                      <DialogHeader className="shrink-0 px-4 py-3 text-left">
+                        <DialogTitle className="text-xl">
+                          Update Mockup
+                        </DialogTitle>
+                      </DialogHeader>
+
+                      <Separator />
+
+                      <div className="flex-1 overflow-y-auto p-4">
+                        {editData && (
+                          <MockupForm
+                            initialData={editData}
+                            onSuccess={(updatedMockup) => {
+                              setMockups((prev) =>
+                                prev.map((mockup) => mockup.id === updatedMockup.id ? updatedMockup : mockup)
+                              );
+
+                              setOpen(false);
+
+                              setEditData(undefined);
+                            }}
+                          />
+                        )}
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+
+                  {/* Delete */}
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button size="icon" variant="destructive" className="rounded-xl">
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </AlertDialogTrigger>
+
+                    <AlertDialogContent size="sm">
+                      <AlertDialogHeader>
+                        <AlertDialogMedia className="bg-destructive/10 text-destructive dark:bg-destructive/20 dark:text-destructive">
+                          <Trash2 />
+                        </AlertDialogMedia>
+
+                        <AlertDialogTitle>Delete Mockup?</AlertDialogTitle>
+
+                        <AlertDialogDescription>
+                          This action cannot be undone. This will permanently delete this mockup.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+
+                      <AlertDialogFooter>
+                        <AlertDialogCancel variant="outline">Cancel</AlertDialogCancel>
+                        <AlertDialogAction variant="destructive" onClick={() => handleDelete(mockup.id)}>
+                          Delete
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
     </div>
   );
 }
