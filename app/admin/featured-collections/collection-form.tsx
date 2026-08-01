@@ -80,7 +80,7 @@ export default function CollectionForm({ initialData, onSuccess, }: CollectionFo
       category_id: initialData?.category_id || "",
       title: initialData?.title || "",
       slug: initialData?.slug || "",
-      sort_order: initialData?.sort_order || 0,
+      sort_order: initialData?.sort_order || 1,
       is_active: initialData?.is_active ?? true,
     },
   });
