@@ -112,8 +112,7 @@ export default function Page() {
               </h2>
 
               <p className="text-muted-foreground text-sm">
-                Create your first popular collection to
-                organize products and showcase categories.
+                Create your first popular collection to organize products and showcase categories.
               </p>
             </div>
 
@@ -129,7 +128,7 @@ export default function Page() {
               <DialogContent className="flex max-h-[90vh] flex-col overflow-hidden p-0 sm:max-w-lg gap-0 [&>button]:top-3 [&>button]:right-4">
                 <DialogHeader className="shrink-0 px-4 py-3 text-left">
                   <DialogTitle className="text-xl">
-                    Create Slide
+                    Create Collection
                   </DialogTitle>
                 </DialogHeader>
 

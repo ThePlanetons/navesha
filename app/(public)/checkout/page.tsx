@@ -281,7 +281,7 @@ export default function CheckoutPage() {
       currency: data.currency,
       order_id: data.razorpay_order_id,
 
-      name: "Your Store",
+      name: "Navesha",
 
       handler: async function (response: RazorpayResponse) {
         const verifyRes = await fetch("/api/landing/payment/verify", {
